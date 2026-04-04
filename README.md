@@ -22,7 +22,7 @@ The idea to write this library was enspired by Spring State Machine project whic
 
 -------
 TODOs:
-1. Remove dependencies on Google Guava
+1. ~~Remove dependencies on Google Guava~~
 2. ~~Translate Javadoc~~
 3. Provide a general description of the library (differences from Spring Statemachine)
 4. Prepare usage examples
