@@ -1,6 +1,6 @@
 package alex.band.statemachine.message;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.builder.StateMachineBuilder;

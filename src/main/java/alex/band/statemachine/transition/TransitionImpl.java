@@ -1,9 +1,8 @@
 package alex.band.statemachine.transition;
 
-import com.google.common.base.Optional;
-
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -28,7 +27,7 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 
 	@Override
 	public Optional<S> getTarget() {
-		return Optional.fromNullable(target);
+		return Optional.ofNullable(target);
 	}
 
 	@Override
@@ -38,7 +37,7 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 
 	@Override
 	public Optional<Guard<S, E>> getGuard() {
-		return Optional.fromNullable(guard);
+		return Optional.ofNullable(guard);
 	}
 
 	@Override

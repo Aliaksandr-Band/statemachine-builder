@@ -1,9 +1,8 @@
 package alex.band.statemachine.builder.impl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import alex.band.statemachine.ListenableStateMachine;

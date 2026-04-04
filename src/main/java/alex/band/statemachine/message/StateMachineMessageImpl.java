@@ -1,6 +1,6 @@
 package alex.band.statemachine.message;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 
 /**
@@ -30,7 +30,7 @@ public class StateMachineMessageImpl<E> implements StateMachineMessage<E> {
 
 	@Override
 	public Optional<Object> getPayload() {
-		return Optional.fromNullable(payload);
+		return Optional.ofNullable(payload);
 	}
 
 	@Override

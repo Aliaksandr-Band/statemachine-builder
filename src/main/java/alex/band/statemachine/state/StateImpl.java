@@ -3,9 +3,8 @@ package alex.band.statemachine.state;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
-import com.google.common.base.Optional;
 
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
@@ -30,7 +29,7 @@ public class StateImpl<S, E> implements State<S, E> {
 	@Override
 	public Optional<Transition<S, E>> getSuitableTransition(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
 		if (transitions.get(message.getEvent()) == null || transitions.get(message.getEvent()).isEmpty()) {
-			return Optional.absent();
+			return Optional.empty();
 		}
 
 		for (Transition<S, E> transition: transitions.get(message.getEvent())) {
@@ -39,7 +38,7 @@ public class StateImpl<S, E> implements State<S, E> {
 			}
 		}
 
-		return Optional.absent();
+		return Optional.empty();
 	}
 
 	@Override
