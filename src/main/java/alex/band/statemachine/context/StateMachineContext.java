@@ -7,32 +7,32 @@ import alex.band.statemachine.state.StateAction;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
- * Структура данных для хранения контекстной информации необходимой в процессе работы конечного автомата {@link StateMachine}
+ * Data structure for storing contextual information required during the execution of the {@link StateMachine}.
  *
- * <p>Данные хранятся в виде пар {@code (key, value)}. Наполнение определяется нуждами конкретной задачи.
+ * <p>Data is stored as {@code (key, value)} pairs. The content is determined by the needs of a specific task.
  *
- * <p>{@code StateMachineContext} выступает в роли {@code shared} объекта,
- * который доступен всем компонентам, задающим поведение конечного автомата.
- * А именно: {@link StateMachineStartAction}, {@link StateMachineStopAction}, {@link Guard}, {@link StateAction}, {@link TransitionAction}
+ * <p>{@code StateMachineContext} acts as a {@code shared} object
+ * available to all components that define the behavior of the state machine.
+ * Namely: {@link StateMachineStartAction}, {@link StateMachineStopAction}, {@link Guard}, {@link StateAction}, {@link TransitionAction}
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StateMachineContext {
 
 	/**
-	 * Возвращает значение по ключу либо null
+	 * Returns the value for the given key, or {@code null} if not found.
 	 */
 	Object getValue(String key);
 
 	/**
-	 * Задает значение и ключ
+	 * Sets a value for the given key.
 	 */
 	void setValue(String key, Object value);
 
 	/**
-	 * Удаляет значение по ключу.
+	 * Removes the value for the given key.
 	 *
-	 * @return удаленное значение либо null
+	 * @return the removed value, or {@code null} if not found
 	 */
 	Object removeValue(String key);
 

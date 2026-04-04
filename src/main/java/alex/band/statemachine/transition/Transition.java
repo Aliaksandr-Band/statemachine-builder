@@ -7,51 +7,51 @@ import com.google.common.base.Optional;
 import alex.band.statemachine.StateMachine;
 
 /**
- * Описание перехода между управляющими состояниями {@link State} конечного автомата {@link StateMachine}.
+ * Describes a transition between {@link State} states of a {@link StateMachine}.
  *
- * <p>Интерфейс описывает такие компоненты перехода как:
- * <ul><li>Исходное состояние {@link #getSource()}</li>
- * <li>Целевое состояние {@link #getTarget()}</li>
- * <li>Событие, вызывающее переход {@link #getEvent()}</li>
- * <li>Разрешение на переход {@link #getGuard()}</li>
- * <li>Действия перехода {@link #getActions()}</li>
- * <li>Тип перехода {@link #isExternal()}</li>
+ * <p>The interface defines the following transition components:
+ * <ul><li>Source state {@link #getSource()}</li>
+ * <li>Target state {@link #getTarget()}</li>
+ * <li>Event that triggers the transition {@link #getEvent()}</li>
+ * <li>Transition guard (permission) {@link #getGuard()}</li>
+ * <li>Transition actions {@link #getActions()}</li>
+ * <li>Transition type {@link #isExternal()}</li>
  * </ul>
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface Transition<S, E> {
 
 	/**
-	 * Возвращает исходное состояние перехода.
+	 * Returns the source state of the transition.
 	 */
 	S getSource();
 
 	/**
-	 * Возвращает целевое состояние перехода.
+	 * Returns the target state of the transition.
 	 */
 	Optional<S> getTarget();
 
 	/**
-	 * Возвращает событие, инициирующее переход.
+	 * Returns the event that triggers the transition.
 	 */
 	E getEvent();
 
 	/**
-	 * Возвращает {@link Guard} защиту (разрешение) перехода.
+	 * Returns the {@link Guard} (permission) for the transition.
 	 */
 	Optional<Guard<S, E>> getGuard();
 
 	/**
-	 * Возвращает набор действий {@link TransitionAction}, связанных с переходом.
+	 * Returns the set of {@link TransitionAction}s associated with the transition.
 	 */
 	Set<TransitionAction<S, E>> getActions();
 
 	/**
-	 * Возвращает тип перехода: (внешний или внутренний)
+	 * Returns the transition type: external or internal.
 	 */
 	boolean isExternal();
 

@@ -1,14 +1,14 @@
 package alex.band.statemachine;
 
 /**
- * Действие, выполняемое на старте конечного автомата {@link StateMachine}
+ * An action executed when the state machine starts {@link StateMachine}
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StateMachineStartAction<S, E> {
 
 	/**
-	 * Выполнение действия на старте конечного автомата.
+	 * Executes the start action of the state machine.
 	 */
 	void onStart(StateMachineDetails<S, E> context);
 

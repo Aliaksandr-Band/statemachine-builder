@@ -9,7 +9,7 @@ import alex.band.statemachine.transition.TransitionAction;
 import alex.band.statemachine.transition.TransitionImpl;
 
 /**
- * Реализация {@link InternalTransitionConfigurer}
+ * Implementation of {@link InternalTransitionConfigurer}.
  *
  * @author Aliaksandr Bandarchyk
  */

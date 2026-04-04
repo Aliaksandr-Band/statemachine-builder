@@ -5,7 +5,7 @@ import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.state.State;
 
 /**
- * Адаптер к {@link StateMachineListener}. Удобно использовать, если нужно реализовать слушателя только для одного события из набора.
+ * Adapter for {@link StateMachineListener}. Convenient to use when you only need to listen to a subset of events.
  *
  * @author Aliaksandr Bandarchyk
  */

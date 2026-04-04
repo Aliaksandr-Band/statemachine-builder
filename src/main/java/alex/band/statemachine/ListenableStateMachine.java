@@ -9,7 +9,8 @@ import alex.band.statemachine.message.StateMachineMessageImpl;
 import alex.band.statemachine.state.State;
 
 /**
- * Абстрактная реализация {@link StateMachine}, реализующая механизм регистрации/удаления/оповещения слушателей {@link StateMachineListener}.
+ * Abstract implementation of {@link StateMachine} that provides the mechanism for
+ * registering/removing/notifying {@link StateMachineListener}s.
  *
  * @author Aliaksandr Bandarchyk
  */
@@ -28,7 +29,7 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	}
 
 	/**
-	 * Действия по запуску конечного автомата.
+	 * Actions to start the state machine.
 	 */
 	protected abstract void doStart();
 
@@ -42,7 +43,7 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	}
 
 	/**
-	 * Действия по остановке конечного автомата.
+	 * Actions to stop the state machine.
 	 */
 	protected abstract void doStop();
 
@@ -70,7 +71,7 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	}
 
 	/**
-	 * Действия по обработке сообщений конечным автоматом.
+	 * Actions to process messages by the state machine.
 	 */
 	protected abstract boolean doAccept(StateMachineMessage<E> message);
 

@@ -6,32 +6,32 @@ import alex.band.statemachine.transition.Guard;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
- * Конфигуратор внутренних переходов {@link Transition} состояния {@link State} конечного автомата {@link StateMachine} S1->S1.
+ * Configurer for internal {@link Transition} of a {@link State} in the {@link StateMachine} S1->S1.
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface InternalTransitionConfigurer<S, E> {
 
 	/**
-	 * Задает событие, которое инициирует переход
+	 * Sets the event that triggers the transition.
 	 */
 	InternalTransitionConfigurer<S, E> by(E event);
 
 	/**
-	 * Задает {@link Guard} для оценки возможности перехода
+	 * Sets a {@link Guard} for evaluating the transition.
 	 */
 	InternalTransitionConfigurer<S, E> guardedBy(Guard<S, E> guard);
 
 	/**
-	 * Задает {@link TransitionAction}, которое будет выполнено во время перехода
+	 * Sets a {@link TransitionAction} to be executed during the transition.
 	 */
 	InternalTransitionConfigurer<S, E> withAction(TransitionAction<S, E> action);
 
 	/**
-	 * Задает множество {@link TransitionAction}, которые будут выполнены во время перехода
+	 * Sets a set of {@link TransitionAction}s to be executed during the transition.
 	 */
 	InternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions);
 

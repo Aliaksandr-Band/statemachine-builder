@@ -5,8 +5,8 @@ import alex.band.statemachine.state.State;
 
 /**
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */

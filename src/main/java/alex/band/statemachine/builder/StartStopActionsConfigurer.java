@@ -4,24 +4,24 @@ import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
 
 /**
- * Конфигуратор стартовых {@link StateMachineStartAction} и терминальных {@link StateMachineStopAction} действий
- * конечного автомата {@link StateMachine}
+ * Configurer for start {@link StateMachineStartAction} and stop {@link StateMachineStopAction} actions
+ * of the {@link StateMachine}.
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StartStopActionsConfigurer<S, E> {
 
 	/**
-	 * Задает набор стартовых {@link StateMachineStartAction} действий конечного автомата
+	 * Sets the start {@link StateMachineStartAction} actions of the state machine.
 	 */
 	@SuppressWarnings("unchecked")
 	StartStopActionsConfigurer<S, E> onStart(StateMachineStartAction<S, E> ...actions);
 
 	/**
-	 * Задает набор финальных {@link StateMachineStopAction} действий конечного автомата
+	 * Sets the stop {@link StateMachineStopAction} actions of the state machine.
 	 */
 	@SuppressWarnings("unchecked")
 	StartStopActionsConfigurer<S, E> onStop(StateMachineStopAction<S, E> ...actions);

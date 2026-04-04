@@ -6,37 +6,37 @@ import alex.band.statemachine.transition.Guard;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
- * Конфигуратор внешних переходов {@link Transition} между состояниями {@link State} конечного автомата {@link StateMachine}. S1->S2.
+ * Configurer for external {@link Transition} between {@link State} states of the {@link StateMachine}. S1->S2.
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface ExternalTransitionConfigurer<S, E> {
 
 	/**
-	 * Задает целевое состояние перехода
+	 * Sets the target state of the transition.
 	 */
 	ExternalTransitionConfigurer<S, E> to(S state);
 
 	/**
-	 * Задает событие, которое инициирует переход
+	 * Sets the event that triggers the transition.
 	 */
 	ExternalTransitionConfigurer<S, E> by(E event);
 
 	/**
-	 * Задает {@link Guard} для оценки возможности перехода
+	 * Sets a {@link Guard} for evaluating the transition.
 	 */
 	ExternalTransitionConfigurer<S, E> guardedBy(Guard<S, E> guard);
 
 	/**
-	 * Задает {@link TransitionAction}, которое будет выполнено во время перехода
+	 * Sets a {@link TransitionAction} to be executed during the transition.
 	 */
 	ExternalTransitionConfigurer<S, E> withAction(TransitionAction<S, E> action);
 
 	/**
-	 * Задает множество {@link TransitionAction}, которые будут выполнены во время перехода
+	 * Sets a set of {@link TransitionAction}s to be executed during the transition.
 	 */
 	ExternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions);
 

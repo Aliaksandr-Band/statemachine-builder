@@ -22,7 +22,9 @@ The idea to write this library was enspired by Spring State Machine project whic
 
 -------
 TODOs:
-1. Убрать зависимости от Google Guava
-2. Перевести Javadoc
-3. Дать общее описание библиотеки (отличия от Spring Statemachine)
-4. Подготовить примеры использования
+1. Remove dependencies on Google Guava
+2. ~~Translate Javadoc~~
+3. Provide a general description of the library (differences from Spring Statemachine)
+4. Prepare usage examples
+5. Implement 'deferred action' support
+6. Update JUnit and Mockito deps

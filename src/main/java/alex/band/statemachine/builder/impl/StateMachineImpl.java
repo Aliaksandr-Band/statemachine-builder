@@ -17,9 +17,9 @@ import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
- * Базовая реализация конечного автомата {@link StateMachine}.
+ * Base implementation of {@link StateMachine}.
  *
- * <p>Реализует базовые концепции, описанные в <a href="https://en.wikipedia.org/wiki/UML_state_machine">UML StateMachine</a>. А именно:
+ * <p>Implements the core concepts described in <a href="https://en.wikipedia.org/wiki/UML_state_machine">UML StateMachine</a>. Namely:
  * <ul><li>Events</li>
  * <li>States</li>
  * <li>Extended States</li>
@@ -27,7 +27,7 @@ import alex.band.statemachine.transition.TransitionAction;
  * <li>Actions</li>
  * <li>Transitions</li></ul>
  *
- * <p>В качестве расширений к традиционной модели поддерживаются:
+ * <p>Extensions to the traditional model include:
  * <ul><li>Entry and exit actions</li>
  * <li>Internal transitions</li>
  * <li>Event deferral</li></ul>

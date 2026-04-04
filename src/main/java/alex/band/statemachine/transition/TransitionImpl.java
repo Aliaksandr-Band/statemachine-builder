@@ -8,7 +8,7 @@ import java.util.Set;
 
 
 /**
- * Реализация {@link Transition}
+ * Implementation of {@link Transition}.
  *
  * @author Aliaksandr Bandarchyk
  */

@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 
 
 /**
- * Реализация {@link StateMachineMessage}
+ * Implementation of {@link StateMachineMessage}.
  *
  * @author Aliaksandr Bandarchyk
  */

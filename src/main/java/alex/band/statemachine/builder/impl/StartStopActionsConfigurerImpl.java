@@ -9,7 +9,7 @@ import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.builder.StartStopActionsConfigurer;
 
 /**
- * Реализация {@link StartStopActionsConfigurer}
+ * Implementation of {@link StartStopActionsConfigurer}.
  *
  * @author Aliaksandr Bandarchyk
  */

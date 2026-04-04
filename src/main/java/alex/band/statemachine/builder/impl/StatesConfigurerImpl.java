@@ -7,7 +7,7 @@ import alex.band.statemachine.state.StateAction;
 import alex.band.statemachine.state.StateImpl;
 
 /**
- * Реализация {@link StatesConfigurer}
+ * Implementation of {@link StatesConfigurer}.
  *
  * @author Aliaksandr Bandarchyk
  */

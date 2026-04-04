@@ -12,7 +12,7 @@ import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.transition.Transition;
 
 /**
- * Реализация {@link State}
+ * Implementation of {@link State}.
  *
  * @author Aliaksandr Bandarchyk
  */

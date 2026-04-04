@@ -22,7 +22,7 @@ import alex.band.statemachine.state.StateImpl;
 import alex.band.statemachine.transition.Transition;
 
 /**
- * Реализация {@link StateMachineBuilder}
+ * Implementation of {@link StateMachineBuilder}.
  *
  * @author Aliaksandr Bandarchyk
  */

@@ -4,47 +4,47 @@ import alex.band.statemachine.listener.StateMachineListener;
 import alex.band.statemachine.message.StateMachineMessage;
 
 /**
- * Интерфейс, предоставляющий базовый набор методов по работе с конечным автоматом (КА).
+ * Interface providing the core set of methods for working with a state machine.
  *
- * <p>Содержит методы:
- * <ul><li>Запуска и остановки КА - {@link #start()}, {@link #stop()}.</li>
- * <li>управления жизненным циклом КА посредством событий и сообщений - {@link #accept(Object)}, {@link #accept(StateMachineMessage)}.</li>
- * <li>регистрации слушателей работы КА - {@link #addListener(StateMachineListener)}, {@link #removeListener(StateMachineListener)}.</li></ul>
+ * <p>Contains methods for:
+ * <ul><li>Starting and stopping the state machine - {@link #start()}, {@link #stop()}.</li>
+ * <li>Lifecycle management via events and messages - {@link #accept(Object)}, {@link #accept(StateMachineMessage)}.</li>
+ * <li>Registering state machine listeners - {@link #addListener(StateMachineListener)}, {@link #removeListener(StateMachineListener)}.</li></ul>
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StateMachine<S, E> extends StateMachineDetails<S, E> {
 
 	/**
-	 * Запуск конечного автомата.
+	 * Starts the state machine.
 	 */
 	void start();
 
 	/**
-	 * Остановка конечного автомата.
+	 * Stops the state machine.
 	 */
 	void stop();
 
 	/**
-	 * Отправка события на обработку конечным автоматом.
+	 * Sends an event to the state machine for processing.
 	 */
 	boolean accept(E event);
 
 	/**
-	 * Отправка сообщения на обработку конечным автоматом.
+	 * Sends a message to the state machine for processing.
 	 */
 	boolean accept(StateMachineMessage<E> message);
 
 	/**
-	 * Регистрация слушателя жизненного цикла конечным автоматом.
+	 * Registers a state machine lifecycle listener.
 	 */
 	void addListener(StateMachineListener<S, E> listener);
 
 	/**
-	 * Удаления слушателя жизненного цикла конечным автоматом.
+	 * Removes a state machine lifecycle listener.
 	 */
 	void removeListener(StateMachineListener<S, E> listener);
 

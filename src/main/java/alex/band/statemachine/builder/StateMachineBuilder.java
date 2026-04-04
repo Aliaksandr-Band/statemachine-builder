@@ -8,48 +8,48 @@ import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.transition.Transition;
 
 /**
- * {@code Builder} для построения {@link StateMachine} заданной конфигурации
+ * {@code Builder} for constructing a {@link StateMachine} with a given configuration.
  *
- * <p>Позволяет конфигурировать следующие компоненты конечного автомата (КА):
- * <ul><li>Стартовые и терминальные действия КА - {@link #defineStartStopActions()}</li>
- * <li>Управляющие состояния - {@link #defineState(Object)}, {@link #defineStates(Set)}</li>
- * <li>Внешние и внутренние переходы - {@link #defineExternalTransitionFor(Object)}, {@link #defineInternalTransitionFor(Object)}</li></ul>
+ * <p>Allows configuring the following state machine components:
+ * <ul><li>Start and stop actions - {@link #defineStartStopActions()}</li>
+ * <li>States - {@link #defineState(Object)}, {@link #defineStates(Set)}</li>
+ * <li>External and internal transitions - {@link #defineExternalTransitionFor(Object)}, {@link #defineInternalTransitionFor(Object)}</li></ul>
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StateMachineBuilder<S, E> {
 
 	/**
-	 * Конфигурация стартовых {@link StateMachineStartAction} и терминальных {@link StateMachineStopAction}
-	 * конечного автомата {@link StateMachine}
+	 * Configures start {@link StateMachineStartAction} and stop {@link StateMachineStopAction}
+	 * actions of the {@link StateMachine}.
 	 */
 	StartStopActionsConfigurer<S, E> defineStartStopActions();
 
 	/**
-	 * Конфигурация нового состояния {@link State} конечного автомата {@link StateMachine}
+	 * Configures a new {@link State} of the {@link StateMachine}.
 	 */
 	StatesConfigurer<S, E> defineState(S state);
 
 	/**
-	 * Создание набора состояний {@link State} конечного автомата {@link StateMachine}
+	 * Defines a set of {@link State} for the {@link StateMachine}.
 	 */
 	void defineStates(Set<S> states);
 
 	/**
-	 * Конфигурация внешних переходов {@link Transition} конечного автомата {@link StateMachine}
+	 * Configures external {@link Transition} of the {@link StateMachine}.
 	 */
 	ExternalTransitionConfigurer<S, E> defineExternalTransitionFor(S sourceState);
 
 	/**
-	 * Конфигурация внутренних переходов {@link Transition} конечного автомата {@link StateMachine}
+	 * Configures internal {@link Transition} of the {@link StateMachine}.
 	 */
 	InternalTransitionConfigurer<S, E>  defineInternalTransitionFor(S sourceState);
 
 	/**
-	 * Создание {@link StateMachine} заданной конфигурации
+	 * Builds the {@link StateMachine} with the given configuration.
 	 */
 	StateMachine<S, E> build();
 

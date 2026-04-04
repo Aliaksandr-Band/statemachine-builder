@@ -5,49 +5,49 @@ import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.state.State;
 
 /**
- * Слушатель жизненного цикла конечного автомата {@link StateMachine}.
+ * Listener for the {@link StateMachine} lifecycle.
  *
- * <p>Предоставляет управление после следующих этапов работы конечного автомата (КА):
- * <ul><li>запуск КА - {@link #onStart(StateMachineDetails)}</li>
- * <li>остановка КА - {@link #onStop(StateMachineDetails)}</li>
- * <li>смена управляющего состояния КА - {@link #onStateChanged(StateMachineMessage, State, StateMachineDetails)}</li>
- * <li>игнорирование пришедшего сообщения - {@link #onEventNotAccepted(StateMachineMessage, StateMachineDetails)}</li></ul>
+ * <p>Provides callbacks after the following state machine stages:
+ * <ul><li>state machine start - {@link #onStart(StateMachineDetails)}</li>
+ * <li>state machine stop - {@link #onStop(StateMachineDetails)}</li>
+ * <li>state change - {@link #onStateChanged(StateMachineMessage, State, StateMachineDetails)}</li>
+ * <li>event rejection - {@link #onEventNotAccepted(StateMachineMessage, StateMachineDetails)}</li></ul>
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StateMachineListener<S, E> {
 
 	/**
-	 * Метод вызывается после отработки стартовых действий конечного автомата.
+	 * Called after the state machine start actions have been executed.
 	 *
-	 * <p>Слушатель будет иметь возможность анализа состояния конечного автомата через интерфейс {@link StateMachineDetails}
+	 * <p>The listener can inspect the state machine state through the {@link StateMachineDetails} interface.
 	 */
 	void onStart(StateMachineDetails<S, E> stateMachineDetails);
 
 	/**
-	 * Метод вызывается после отработки терминальных действий конечного автомата.
+	 * Called after the state machine stop actions have been executed.
 	 *
-	 * <p>Слушатель будет иметь возможность анализа состояния конечного автомата через интерфейс {@link StateMachineDetails}
+	 * <p>The listener can inspect the state machine state through the {@link StateMachineDetails} interface.
 	 */
 	void onStop(StateMachineDetails<S, E> stateMachineDetails);
 
 	/**
-	 * Метод вызывается после смены управляющего состояния конечного автомата.
+	 * Called after the state machine changes its state.
 	 *
-	 * <p>Слушатель получить информацию о сообщении {@link StateMachineMessage}, приведшем к смене управляющего состояния,
-	 * о предыдущем управляющем состоянии {@link State} и о деталях состояния самого конечного автомата через интерфейс {@link StateMachineDetails}.
+	 * <p>The listener receives information about the {@link StateMachineMessage} that caused the state change,
+	 * the previous {@link State}, and the state machine details via the {@link StateMachineDetails} interface.
 	 */
 	void onStateChanged(StateMachineMessage<E> message, State<S, E> previousState, StateMachineDetails<S, E> stateMachineDetails);
 
 	/**
-	 * Метод вызывается в случае, если пришедшее сообщение {@link StateMachineMessage} не может быть обработано в текущем управляющем состоянии,
-	 * при текущих условиях.
+	 * Called when an incoming {@link StateMachineMessage} cannot be processed in the current state
+	 * under the current conditions.
 	 *
-	 * <p>Слушатель получить информацию о сообщении {@link StateMachineMessage}
-	 * и о деталях состояния самого конечного автомата через интерфейс {@link StateMachineDetails}.
+	 * <p>The listener receives information about the {@link StateMachineMessage}
+	 * and the state machine details via the {@link StateMachineDetails} interface.
 	 */
 	void onEventNotAccepted(StateMachineMessage<E> message, StateMachineDetails<S, E> stateMachineDetails);
 

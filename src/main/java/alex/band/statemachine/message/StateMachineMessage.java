@@ -6,23 +6,23 @@ import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.builder.StateMachineBuilder;
 
 /**
- * Сообщение для конечного автомата {@link StateMachine}. Содержит идентификатор события {@link #getEvent()} и полезную нагрузку {@link #getPayload()}.
+ * A message for the {@link StateMachine}. Contains an event identifier {@link #getEvent()} and an optional payload {@link #getPayload()}.
  *
- * @param <E> - тип идентификатора события
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StateMachineMessage<E> {
 
 	/**
-	 * Событие на которое должен реагировать конечный автомат.
+	 * The event that the state machine should react to.
 	 *
-	 * <p>Назначение события задается конфигурацией конкретного конечного автомата при помощи {@link StateMachineBuilder}.
+	 * <p>The event is defined in the configuration of a specific state machine using {@link StateMachineBuilder}.
 	 */
 	E getEvent();
 
 	/**
-	 * Полезная нагрузка, которая может присутствовать в сообщении.
+	 * The optional payload that may be present in the message.
 	 */
 	Optional<Object> getPayload();
 

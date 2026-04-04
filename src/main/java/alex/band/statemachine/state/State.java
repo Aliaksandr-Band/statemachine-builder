@@ -8,39 +8,39 @@ import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.transition.Transition;
 
 /**
- * Управляющее состояние конечного автомата {@link StateMachine}
+ * A state of the {@link StateMachine}.
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface State<S, E> {
 
 	/**
-	 * Метод возвращает переход {@link Transition} для текущего управляющего состояния
-	 * если переданное сообщение {@link StateMachineMessage} поддерживается и логика {@link Guard}, ассоциированного
-	 * с переходом возвращает {@code True}.
+	 * Returns the {@link Transition} for the current state if the given
+	 * {@link StateMachineMessage} is supported and the {@link Guard} associated
+	 * with the transition evaluates to {@code true}.
 	 */
 	Optional<Transition<S, E>> getSuitableTransition(StateMachineMessage<E> message, StateMachineDetails<S, E> context);
 
 	/**
-	 * Запуск действий на входе в управляющее состояние.
+	 * Executes entry actions when entering this state.
 	 */
 	void onEnter(StateMachineDetails<S, E> context);
 
 	/**
-	 * Запуск действий на выходе из управляющего состояния.
+	 * Executes exit actions when leaving this state.
 	 */
 	void onExit(StateMachineDetails<S, E> context);
 
 	/**
-	 * Вернет ID управляющего состояния.
+	 * Returns the state identifier.
 	 */
 	S getId();
 
 	/**
-	 * {@code True} - если пришедшее сообщение {@link StateMachineMessage} может быть отложено в текущем состоянии.
+	 * Returns {@code true} if the given {@link StateMachineMessage} can be deferred in the current state.
 	 */
 	boolean canBeDeferred(StateMachineMessage<E> message);
 

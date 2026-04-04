@@ -6,42 +6,42 @@ import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.state.StateAction;
 
 /**
- * Конфигуратор состояний {@link State} конечного автомата {@link StateMachine}
+ * Configurer for {@link State} of the {@link StateMachine}.
  *
- * @param <S> - тип идентификатора состояния
- * @param <E> - тип идентификатора события
+ * @param <S> the type of the state identifier
+ * @param <E> the type of the event identifier
  *
  * @author Aliaksandr Bandarchyk
  */
 public interface StatesConfigurer<S, E> {
 
 	/**
-	 * Помечает состояние как стартовое. В конфигурации конечного автомата допустимо только одно стартовое состояние.
+	 * Marks the state as initial. Only one initial state is allowed in the state machine configuration.
 	 */
 	StatesConfigurer<S, E> asInitial();
 
 	/**
-	 * Помечает состояние как финальное (терминальное). В конфигурации конечного автомата допустимо только одно финальное состояние.
+	 * Marks the state as final (terminal). Only one final state is allowed in the state machine configuration.
 	 */
 	StatesConfigurer<S, E> asFinal();
 
 	/**
-	 * Задает набор действий {@link StateAction} для конфигурируемого состояния
+	 * Sets a set of {@link StateAction} for the configured state.
 	 */
 	StatesConfigurer<S, E> withActions(Set<StateAction<S, E>> actions);
 
 	/**
-	 * Задает действие {@link StateAction} для конфигурируемого состояния
+	 * Sets a {@link StateAction} for the configured state.
 	 */
 	StatesConfigurer<S, E> withAction(StateAction<S, E> action);
 
 	/**
-	 * Задает отложенное событие для конфигурируемого состояния
+	 * Sets a deferred event for the configured state.
 	 */
 	StatesConfigurer<S, E> withDeferredEvent(E deferredEvent);
 
 	/**
-	 * Задает набор отложенных событий для конфигурируемого состояния
+	 * Sets a set of deferred events for the configured state.
 	 */
 	StatesConfigurer<S, E> withDeferredEvents(Set<E> deferredEvents);
 

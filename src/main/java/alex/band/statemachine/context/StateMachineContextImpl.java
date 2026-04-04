@@ -5,7 +5,7 @@ import java.util.Map;
 
 
 /**
- * Реализация {@link StateMachineContext}
+ * Implementation of {@link StateMachineContext}.
  *
  * @author Aliaksandr Bandarchyk
  */
