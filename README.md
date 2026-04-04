@@ -27,4 +27,4 @@ TODOs:
 3. Provide a general description of the library (differences from Spring Statemachine)
 4. Prepare usage examples
 5. Implement 'deferred action' support
-6. Update JUnit and Mockito deps
+6. ~~Update to Java 17, JUnit 5 and Mockito deps~~
