@@ -3,7 +3,8 @@ package alex.band.statemachine.builder.impl;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import com.google.common.base.Preconditions;
+
+import static alex.band.statemachine.util.Asserts.checkState;
 
 import alex.band.statemachine.ListenableStateMachine;
 import alex.band.statemachine.StateMachine;
@@ -50,7 +51,7 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	@Override
 	protected void doStart() {
-		Preconditions.checkState(!running, "Statemachine is already running.");
+		checkState(!running, "Statemachine is already running.");
 
 		deferredMessage = null;
 		for (StateMachineStartAction<S, E> action: startActions) {
@@ -79,7 +80,7 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	@Override
 	protected boolean doAccept(StateMachineMessage<E> message) {
-		Preconditions.checkState(running, "Statemachine is not running yet.");
+		checkState(running, "Statemachine is not running yet.");
 
 		if (message == null) {
 			return false;
