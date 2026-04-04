@@ -5,8 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import static alex.band.statemachine.util.Asserts.checkState;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
@@ -96,18 +95,18 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	private void validateStates() {
-		Preconditions.checkState(!states.isEmpty(), THERE_ARE_NO_STATES_DEFINED);
-		Preconditions.checkState(initialState != null, INITIAL_STATE_IS_NOT_DEFINED);
-		Preconditions.checkState(finalState != null, FINAL_STATE_IS_NOT_DEFINED);
+		checkState(!states.isEmpty(), THERE_ARE_NO_STATES_DEFINED);
+		checkState(initialState != null, INITIAL_STATE_IS_NOT_DEFINED);
+		checkState(finalState != null, FINAL_STATE_IS_NOT_DEFINED);
 	}
 
 	private void validateTransitions() {
-		Set<S> diff = Sets.difference(transitions.keySet(), states.keySet());
-		Preconditions.checkState(diff.isEmpty(), UNKOWN_SOURCE_STATES_IN_TRANSITIONS, diff);
+		Set<S> diff = difference(transitions.keySet(), states.keySet());
+		checkState(diff.isEmpty(), UNKOWN_SOURCE_STATES_IN_TRANSITIONS, diff);
 
 		Set<S> transitionsTargetStates = validateAndGetTargetStatesFromTransitions();
-		diff = Sets.difference(transitionsTargetStates, states.keySet());
-		Preconditions.checkState(diff.isEmpty(), UNKOWN_TARGET_STATES_IN_TRANSITIONS, diff);
+		diff = difference(transitionsTargetStates, states.keySet());
+		checkState(diff.isEmpty(), UNKOWN_TARGET_STATES_IN_TRANSITIONS, diff);
 	}
 
 	private Set<S> validateAndGetTargetStatesFromTransitions() {
@@ -115,10 +114,10 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		for (Set<Transition<S, E>> transitionsBySource: transitions.values()) {
 			for (Transition<S, E> transition: transitionsBySource) {
 
-				Preconditions.checkState((transition.isExternal() == transition.getTarget().isPresent()),
+				checkState((transition.isExternal() == transition.getTarget().isPresent()),
 						EXTERNAL_TRANSITION_HAS_NO_TARGET_STATE, transition);
 
-				Preconditions.checkState(!transition.getSource().equals(finalState.getId()),
+				checkState(!transition.getSource().equals(finalState.getId()),
 						ILLEGAL_TRANSITION_FROM_FINAL_STATE, transition);
 
 				if (transition.getTarget().isPresent()) {
@@ -130,8 +129,8 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	private void validateTopology() {
-		Set<S> enteredStates = Sets.newHashSet(states.keySet());
-		Set<S> exitedStates = Sets.newHashSet(states.keySet());
+		Set<S> enteredStates = new HashSet<>(states.keySet());
+		Set<S> exitedStates = new HashSet<>(states.keySet());
 		enteredStates.remove(initialState.getId());
 		exitedStates.remove(finalState.getId());
 
@@ -141,8 +140,14 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 			}
 		}
 
-		Preconditions.checkState(enteredStates.isEmpty(), STATES_WITHOUT_INBOUND_TRANSITION, enteredStates);
-		Preconditions.checkState(exitedStates.isEmpty(), STATES_WITHOUT_OUTBOUND_TRANSITION, exitedStates);
+		checkState(enteredStates.isEmpty(), STATES_WITHOUT_INBOUND_TRANSITION, enteredStates);
+		checkState(exitedStates.isEmpty(), STATES_WITHOUT_OUTBOUND_TRANSITION, exitedStates);
+	}
+
+	private Set<S> difference(Set<S> set1, Set<S> set2) {
+		Set<S> result = new HashSet<>(set1);
+		result.removeAll(set2);
+		return result;
 	}
 
 	private void excludeStatesOfExternalTransition(Set<S> enteredStates, Set<S> exitedStates, Transition<S, E> transition) {
@@ -184,17 +189,17 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	private void addState(State<S, E> state) {
-		Preconditions.checkState(!states.containsKey(state.getId()), STATE_ALREADY_DEFINED, state.getId());
+		checkState(!states.containsKey(state.getId()), STATE_ALREADY_DEFINED, state.getId());
 		states.put(state.getId(), state);
 	}
 
 	void setInitialState(State<S, E> state) {
-		Preconditions.checkState(initialState == null, INITIAL_STATE_ALREADY_DEFINED, initialState, state);
+		checkState(initialState == null, INITIAL_STATE_ALREADY_DEFINED, initialState, state);
 		initialState = state;
 	}
 
 	void setFinalState(State<S, E> state) {
-		Preconditions.checkState(finalState == null, FINAL_STATE_ALREADY_DEFINED, finalState, state);
+		checkState(finalState == null, FINAL_STATE_ALREADY_DEFINED, finalState, state);
 		finalState = state;
 	}
 
