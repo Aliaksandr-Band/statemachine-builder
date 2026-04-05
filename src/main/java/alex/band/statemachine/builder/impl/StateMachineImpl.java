@@ -1,7 +1,9 @@
 package alex.band.statemachine.builder.impl;
 
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 import static alex.band.statemachine.util.Asserts.checkState;
@@ -30,7 +32,7 @@ import alex.band.statemachine.transition.TransitionAction;
  * <p>Extensions to the traditional model include:
  * <ul><li>Entry and exit actions</li>
  * <li>Internal transitions</li>
- * <li>Event deferral</li></ul>
+ * <li>Events deferral</li></ul>
  *
  * @author Aliaksandr Bandarchyk
  */
@@ -47,13 +49,13 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	private boolean running;
 	private StateMachineContext context;
 
-	private StateMachineMessage<E> deferredMessage;
+	private Queue<StateMachineMessage<E>> deferredQueue = new ArrayDeque<>();
 
 	@Override
 	protected void doStart() {
 		checkState(!running, "Statemachine is already running.");
 
-		deferredMessage = null;
+		deferredQueue.clear();
 		for (StateMachineStartAction<S, E> action: startActions) {
 			action.onStart(this);
 		}
@@ -85,20 +87,29 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 		if (message == null) {
 			return false;
 		}
-		
+
 		if (currentState.canBeDeferred(message)) {
-			deferredMessage = message;
+			deferredQueue.offer(message);
 			return true;
 		}
 
 		boolean messageAccepted = processMessage(message);
 
-		if (deferredMessage != null && !currentState.canBeDeferred(deferredMessage) && !currentState.equals(finalState)) {
-			processMessage(deferredMessage);
-			deferredMessage = null;
-		}
+		processDeferredQueue();
 
 		return messageAccepted;
+	}
+
+	private void processDeferredQueue() {
+		while (!deferredQueue.isEmpty() && !currentState.equals(finalState)) {
+			StateMachineMessage<E> deferredMessage = deferredQueue.peek();
+			if (!currentState.canBeDeferred(deferredMessage)) {
+				processMessage(deferredMessage);
+				deferredQueue.poll();
+			} else {
+				break;
+			}
+		}
 	}
 
 	private boolean processMessage(StateMachineMessage<E> message) {
@@ -146,9 +157,13 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	public StateMachineContext getContext() {
 		return context;
 	}
-	
-	boolean hasDeferredMessage() {
-		return deferredMessage != null;
+
+	boolean hasDeferredMessages() {
+		return !deferredQueue.isEmpty();
+	}
+
+	int getDeferredQueueSize() {
+		return deferredQueue.size();
 	}
 
 	void setInitialState(State<S, E> initialState) {

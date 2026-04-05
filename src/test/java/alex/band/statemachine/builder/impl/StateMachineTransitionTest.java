@@ -3,7 +3,6 @@ package alex.band.statemachine.builder.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.never;
@@ -22,8 +21,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import alex.band.statemachine.StateMachineDetails;
-import alex.band.statemachine.StateMachineStartAction;
-import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.builder.StateMachineBuilder;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.message.StateMachineMessageImpl;
@@ -34,18 +31,13 @@ import alex.band.statemachine.transition.TransitionAction;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class StateMachineImplTest {
+class StateMachineTransitionTest {
 
-	// States for tests
 	private static final String INITIAL_STATE = "INITIAL_STATE";
 	private static final String FINAL_STATE = "FINAL_STATE";
 	private static final String S1 = "S1";
 	private static final String S2 = "S2";
 	private static final String S3 = "S3";
-	private static final String S4 = "S4";
-
-	// Events for tests
-	private static final String STOP_EVENT = "STOP_EVENT";
 	private static final String TRUE_EVENT = "TRUE_EVENT";
 	private static final String FALSE_EVENT = "FALSE_EVENT";
 	private static final String E1 = "E1";
@@ -62,138 +54,13 @@ class StateMachineImplTest {
 	@Mock
 	private StateAction<String, String> initialStateAction;
 	@Mock
-	private StateAction<String, String> finalStateAction;
-	@Mock
 	private StateAction<String, String> stateAction;
-	@Mock
-	private StateMachineStartAction<String, String> startAction;
-	@Mock
-	private StateMachineStopAction<String, String> stopAction;
-
 
 	@BeforeEach
 	@SuppressWarnings("unchecked")
 	void setUp() {
 		when(trueGuard.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class))).thenReturn(true);
 		when(falseGuard.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class))).thenReturn(false);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	void startStop_stateMachineShouldExecuteStartActionOnStart() {
-		stateMachine = buildMachineForStartStopTests();
-		stateMachine.start();
-
-		verify(startAction).onStart(isA(StateMachineDetails.class));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	void startStop_stateMachineShouldExecuteStopActionOnStop() {
-		stateMachine = buildMachineForStartStopTests();
-		stateMachine.start();
-		stateMachine.stop();
-
-		verify(stopAction).onStop(isA(StateMachineDetails.class));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	void startStop_stateMachineShouldExecuteOnEnterActionForInitialStateOnStart() {
-		stateMachine = buildMachineForStartStopTests();
-		stateMachine.start();
-
-		verify(initialStateAction).onEnter(isA(StateMachineDetails.class));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	void startStop_stateMachineShouldExecuteOnExitActionForCurrentStateOnStop() {
-		stateMachine = buildMachineForStartStopTests();
-		stateMachine.start();
-		stateMachine.stop();
-
-		verify(initialStateAction).onExit(isA(StateMachineDetails.class));
-	}
-
-	@Test
-	void startStop_stateMachineShouldBeRunningOnlyAfterStart() {
-		stateMachine = buildMachineForStartStopTests();
-		assertFalse(stateMachine.isRunning());
-
-		stateMachine.start();
-		assertTrue(stateMachine.isRunning());
-
-		stateMachine.stop();
-		assertFalse(stateMachine.isRunning());
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	void startStop_stateMachineShouldBeStoppedInFinalState() {
-		stateMachine = buildMachineForStartStopTests();
-
-		stateMachine.start();
-		assertTrue(stateMachine.isRunning());
-		assertEquals(INITIAL_STATE, stateMachine.getCurrentState().getId());
-
-		stateMachine.accept(STOP_EVENT);
-		assertFalse(stateMachine.isRunning());
-		assertEquals(FINAL_STATE, stateMachine.getCurrentState().getId());
-
-		verify(finalStateAction).onExit(isA(StateMachineDetails.class));
-		verify(stopAction).onStop(isA(StateMachineDetails.class));
-	}
-
-	@Test
-	void startStop_exceptionShouldBeThrownOnAttempToStartRunningStateMachine() {
-		stateMachine = buildMachineForStartStopTests();
-		stateMachine.start();
-
-		assertThrows(IllegalStateException.class, () -> stateMachine.start());
-	}
-
-	@Test
-	void startStop_exceptionShouldBeThrownOnSendingEventToStoppedStateMachine() {
-		stateMachine = buildMachineForStartStopTests();
-
-		assertThrows(IllegalStateException.class, () -> stateMachine.accept(STOP_EVENT));
-	}
-
-
-	@Test
-	void deferredEvent_stateMachineShouldAcceptDeferredEvent() {
-		stateMachine = buildMachineForDeferredEventTests();
-		stateMachine.start();
-
-		assertEquals(S1, stateMachine.getCurrentState().getId());
-		assertTrue(stateMachine.accept(E2));
-		assertEquals(S1, stateMachine.getCurrentState().getId());
-	}
-
-	@Test
-	void deferredEvent_deferredEventShouldBeProcessedByFirstStateWhichDoesNotDeferIt() {
-		stateMachine = buildMachineForDeferredEventTests();
-		stateMachine.start();
-
-		stateMachine.accept(E2);
-		assertEquals(S1, stateMachine.getCurrentState().getId());
-
-		assertTrue(stateMachine.accept(E1)); // trigger S1->S2 by E1 and then S2->S3 by deferred E2
-		assertEquals(S3, stateMachine.getCurrentState().getId()); // S3->S4 not happen because deferred E2 was used only for S2->S3
-	}
-
-	@Test
-	void deferredEvent_StateMachineShouldResetDeferredEventOnStart() {
-		stateMachine = buildMachineForDeferredEventTests();
-		stateMachine.start();
-
-		stateMachine.accept(E2);
-		assertTrue(stateMachine.hasDeferredMessage());
-
-		stateMachine.stop();
-		stateMachine.start();
-		assertFalse(stateMachine.hasDeferredMessage());
 	}
 
 	@Test
@@ -374,34 +241,6 @@ class StateMachineImplTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private StateMachineImpl<String, String> buildMachineForStartStopTests() {
-		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
-
-		builder.defineStartStopActions().onStart(startAction).onStop(stopAction);
-
-		builder.defineState(INITIAL_STATE).asInitial().withAction(initialStateAction);
-		builder.defineState(FINAL_STATE).asFinal().withAction(finalStateAction);
-
-		builder.defineExternalTransitionFor(INITIAL_STATE).to(FINAL_STATE).by(STOP_EVENT);
-
-		return (StateMachineImpl<String, String>) builder.build();
-	}
-
-	private StateMachineImpl<String, String> buildMachineForDeferredEventTests() {
-		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
-
-		builder.defineState(S1).asInitial().withDeferredEvent(E2);
-		builder.defineState(S2);
-		builder.defineState(S3);
-		builder.defineState(S4).asFinal();
-
-		builder.defineExternalTransitionFor(S1).to(S2).by(E1);
-		builder.defineExternalTransitionFor(S2).to(S3).by(E2);
-		builder.defineExternalTransitionFor(S3).to(S4).by(E2);
-
-		return (StateMachineImpl<String, String>) builder.build();
-	}
-
 	private StateMachineImpl<String, String> buildMachineForEventProcessingTests() {
 		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
 
@@ -419,6 +258,7 @@ class StateMachineImplTest {
 		return (StateMachineImpl<String, String>) builder.build();
 	}
 
+	@SuppressWarnings("unchecked")
 	private StateMachineImpl<String, String> buildMachineForExternalTransitionTests() {
 		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
 
@@ -433,6 +273,7 @@ class StateMachineImplTest {
 		return (StateMachineImpl<String, String>) builder.build();
 	}
 
+	@SuppressWarnings("unchecked")
 	private StateMachineImpl<String, String> buildMachineForInternalTransitionTests() {
 		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
 
