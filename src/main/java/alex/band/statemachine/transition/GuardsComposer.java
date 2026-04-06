@@ -35,11 +35,10 @@ public class GuardsComposer {
 		@Override
 		public boolean evaluate(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
 			return Arrays.stream(guards)
-					.map(guard -> guard.evaluate(message, context))
-					.reduce(true, (a, b) -> a && b);
+					.allMatch(guard -> guard.evaluate(message, context));
 		}
 	}
-	
+
 	private static class ConsiderAnyGuard<S, E> implements Guard<S, E> {
 
 		private Guard<S, E>[] guards;
@@ -52,9 +51,8 @@ public class GuardsComposer {
 		@Override
 		public boolean evaluate(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
 			return Arrays.stream(guards)
-					.map(guard -> guard.evaluate(message, context))
-					.reduce(false, (a, b) -> a || b);
+					.anyMatch(guard -> guard.evaluate(message, context));
 		}
-		
+
 	}
 }
