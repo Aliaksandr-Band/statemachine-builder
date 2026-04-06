@@ -1,7 +1,7 @@
 package alex.band.statemachine.builder.impl;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import alex.band.statemachine.StateMachineStartAction;
@@ -15,8 +15,8 @@ import alex.band.statemachine.builder.StartStopActionsConfigurer;
  */
 public class StartStopActionsConfigurerImpl<S, E> implements StartStopActionsConfigurer<S, E> {
 
-	private Set<StateMachineStartAction<S, E>> startActions = new HashSet<>();
-	private Set<StateMachineStopAction<S, E>> stopActions = new HashSet<>();
+	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
+	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
 
 	@Override
 	public StartStopActionsConfigurer<S, E> onStart(StateMachineStartAction<S, E>... actions) {

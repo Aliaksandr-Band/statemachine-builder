@@ -1,6 +1,6 @@
 package alex.band.statemachine;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import alex.band.statemachine.listener.StateMachineListener;
@@ -16,7 +16,7 @@ import alex.band.statemachine.state.State;
  */
 public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E> {
 
-	private Set<StateMachineListener<S, E>> listeners = new HashSet<>();
+	private Set<StateMachineListener<S, E>> listeners = new LinkedHashSet<>();
 
 
 	@Override

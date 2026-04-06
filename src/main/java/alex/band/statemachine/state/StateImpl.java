@@ -1,7 +1,7 @@
 package alex.band.statemachine.state;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -18,9 +18,9 @@ import alex.band.statemachine.transition.Transition;
 public class StateImpl<S, E> implements State<S, E> {
 
 	private S stateId;
-	private Set<StateAction<S, E>> actions = new HashSet<>();
+	private Set<StateAction<S, E>> actions = new LinkedHashSet<>();
 	private Map<E, Set<Transition<S, E>>> transitions = new HashMap<>();
-	private Set<E> deferredEvents = new HashSet<>();
+	private Set<E> deferredEvents = new LinkedHashSet<>();
 
 	public StateImpl(S stateId) {
 		this.stateId = stateId;
@@ -80,7 +80,7 @@ public class StateImpl<S, E> implements State<S, E> {
 
 	public void addTransition(Transition<S, E> transition) {
 		if (!transitions.containsKey(transition.getEvent())) {
-			transitions.put(transition.getEvent(), new HashSet<Transition<S, E>>());
+			transitions.put(transition.getEvent(), new LinkedHashSet<Transition<S, E>>());
 		}
 		transitions.get(transition.getEvent()).add(transition);
 	}
