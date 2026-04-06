@@ -1,7 +1,7 @@
 package alex.band.statemachine.transition;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,7 +18,7 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 	private S target;
 	private E event;
 	private Guard<S, E> guard;
-	private Set<TransitionAction<S, E>> actions = new HashSet<>();
+	private Set<TransitionAction<S, E>> actions = new LinkedHashSet<>();
 
 	@Override
 	public S getSource() {

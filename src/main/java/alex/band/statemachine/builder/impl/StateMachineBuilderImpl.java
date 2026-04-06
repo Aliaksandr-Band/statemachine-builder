@@ -1,7 +1,7 @@
 package alex.band.statemachine.builder.impl;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,8 +44,8 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	private State<S, E> finalState;
 	private Map<S, State<S, E>> states = new HashMap<>();
 	private Map<S, Set<Transition<S, E>>> transitions = new HashMap<>();
-	private Set<StateMachineStartAction<S, E>> startActions = new HashSet<>();
-	private Set<StateMachineStopAction<S, E>> stopActions = new HashSet<>();
+	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
+	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
 
 	@Override
 	public StartStopActionsConfigurer defineStartStopActions() {
@@ -110,7 +110,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	private Set<S> validateAndGetTargetStatesFromTransitions() {
-		Set<S> targetStates = new HashSet<>();
+		Set<S> targetStates = new LinkedHashSet<>();
 		for (Set<Transition<S, E>> transitionsBySource: transitions.values()) {
 			for (Transition<S, E> transition: transitionsBySource) {
 
@@ -129,8 +129,8 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	private void validateTopology() {
-		Set<S> enteredStates = new HashSet<>(states.keySet());
-		Set<S> exitedStates = new HashSet<>(states.keySet());
+		Set<S> enteredStates = new LinkedHashSet<>(states.keySet());
+		Set<S> exitedStates = new LinkedHashSet<>(states.keySet());
 		enteredStates.remove(initialState.getId());
 		exitedStates.remove(finalState.getId());
 
@@ -145,7 +145,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	private Set<S> difference(Set<S> set1, Set<S> set2) {
-		Set<S> result = new HashSet<>(set1);
+		Set<S> result = new LinkedHashSet<>(set1);
 		result.removeAll(set2);
 		return result;
 	}
@@ -183,7 +183,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 
 	private void addTransition(S sourceState, Transition<S, E> transition) {
 		if (!transitions.containsKey(sourceState)) {
-			transitions.put(sourceState, new HashSet<Transition<S, E>>());
+			transitions.put(sourceState, new LinkedHashSet<Transition<S, E>>());
 		}
 		transitions.get(sourceState).add(transition);
 	}
