@@ -54,26 +54,48 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 
 	@Override
 	public boolean accept(StateMachineMessage<E> message) {
-		State<S, E> previousState = getCurrentState();
-		boolean messageAccepted = doAccept(message);
-
-		for (StateMachineListener<S, E> listener: listeners) {
-
-			if (messageAccepted) {
-				listener.onStateChanged(message, previousState, this);
-
-			} else {
-				listener.onEventNotAccepted(message, this);
-			}
-		}
-
-		return messageAccepted;
+		return doAccept(message);
 	}
 
 	/**
 	 * Actions to process messages by the state machine.
 	 */
 	protected abstract boolean doAccept(StateMachineMessage<E> message);
+
+	/**
+	 * Notifies all registered listeners that the state has changed.
+	 *
+	 * @param message the message that caused the state change
+	 * @param previousState the state before the change
+	 */
+	protected void notifyStateChanged(StateMachineMessage<E> message, State<S, E> previousState) {
+		for (StateMachineListener<S, E> listener: listeners) {
+			listener.onStateChanged(message, previousState, this);
+		}
+	}
+
+	/**
+	 * Notifies all registered listeners that an event has been deferred.
+	 *
+	 * @param message the deferred message
+	 * @param currentState the current state that deferred the event
+	 */
+	protected void notifyEventDeferred(StateMachineMessage<E> message, State<S, E> currentState) {
+		for (StateMachineListener<S, E> listener: listeners) {
+			listener.onEventDeferred(message, currentState, this);
+		}
+	}
+
+	/**
+	 * Notifies all registered listeners that an event was not accepted.
+	 *
+	 * @param message the message that was not accepted
+	 */
+	protected void notifyEventNotAccepted(StateMachineMessage<E> message) {
+		for (StateMachineListener<S, E> listener: listeners) {
+			listener.onEventNotAccepted(message, this);
+		}
+	}
 
 	@Override
 	public void addListener(StateMachineListener<S, E> listener) {

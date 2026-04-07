@@ -85,11 +85,13 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 		checkState(running, "Statemachine is not running yet.");
 
 		if (message == null) {
+			notifyEventNotAccepted(message);
 			return false;
 		}
 
 		if (currentState.canBeDeferred(message)) {
 			deferredQueue.offer(message);
+			notifyEventDeferred(message, currentState);
 			return true;
 		}
 
@@ -119,10 +121,11 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 			doCurrentStateExit(transition);
 			executeTransitionActions(message, transition.get().getActions());
-			doNewStateEnter(transition);
+			doNewStateEnter(transition, message);
 			return true;
 		}
 
+		notifyEventNotAccepted(message);
 		return false;
 	}
 
@@ -138,10 +141,12 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 		}
 	}
 
-	private void doNewStateEnter(Optional<Transition<S, E>> transition) {
+	private void doNewStateEnter(Optional<Transition<S, E>> transition, StateMachineMessage<E> message) {
 		if (transition.get().isExternal()) {
+			State<S, E> previousState = currentState;
 			currentState = states.get(transition.get().getTarget().get());
 			currentState.onEnter(this);
+			notifyStateChanged(message, previousState);
 		}
 		if (finalState.equals(currentState)) {
 			stop();
