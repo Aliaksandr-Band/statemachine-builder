@@ -91,10 +91,10 @@ mvn install -DskipTests
 
 | Priority | Task |
 |---|---|
-| **P0** | Short-circuit evaluation in `GuardsComposer` |
-| **P0** | Deterministic transition ordering |
-| **P1** | Thread safety |
-| **P1** | Correct `onStateChanged` firing for deferred events |
+| **P0** | ~~Short-circuit evaluation in `GuardsComposer`~~ |
+| **P0** | ~~Deterministic transition ordering~~ |
+| **P1** | ~~Thread safety~~ |
+| **P1** | ~~Correct `onStateChanged` firing for deferred events~~ |
 | **P1** | Split `StateAction` into `OnEnterAction` / `OnExitAction` |
 | **P2** | Typed payload and context |
 | **P2** | Remove internal cast to `StateImpl` |
