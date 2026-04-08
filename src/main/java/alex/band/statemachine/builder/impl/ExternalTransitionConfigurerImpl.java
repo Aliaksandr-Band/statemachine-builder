@@ -3,6 +3,7 @@ package alex.band.statemachine.builder.impl;
 import java.util.Set;
 
 import alex.band.statemachine.builder.ExternalTransitionConfigurer;
+import alex.band.statemachine.transition.AsyncAction;
 import alex.band.statemachine.transition.Guard;
 import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
@@ -50,6 +51,18 @@ public class ExternalTransitionConfigurerImpl<S, E> implements ExternalTransitio
 	@Override
 	public ExternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions) {
 		transition.addActions(actions);
+		return this;
+	}
+
+	@Override
+	public ExternalTransitionConfigurer<S, E> withAsyncAction(AsyncAction<S, E> asyncAction) {
+		transition.addAsyncAction(asyncAction);
+		return this;
+	}
+
+	@Override
+	public ExternalTransitionConfigurer<S, E> withAsyncActions(Set<AsyncAction<S, E>> asyncActions) {
+		transition.addAsyncActions(asyncActions);
 		return this;
 	}
 

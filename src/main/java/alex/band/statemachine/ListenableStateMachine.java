@@ -20,7 +20,7 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 
 
 	@Override
-	public void start() {
+	public synchronized void start() {
 		doStart();
 
 		for (StateMachineListener<S, E> listener: listeners) {
@@ -34,7 +34,7 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	protected abstract void doStart();
 
 	@Override
-	public void stop() {
+	public synchronized void stop() {
 		doStop();
 
 		for (StateMachineListener<S, E> listener: listeners) {
@@ -98,12 +98,12 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	}
 
 	@Override
-	public void addListener(StateMachineListener<S, E> listener) {
+	public synchronized void addListener(StateMachineListener<S, E> listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(StateMachineListener<S, E> listener) {
+	public synchronized void removeListener(StateMachineListener<S, E> listener) {
 		listeners.remove(listener);
 	}
 

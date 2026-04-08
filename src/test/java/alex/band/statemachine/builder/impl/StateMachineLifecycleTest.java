@@ -111,10 +111,13 @@ class StateMachineLifecycleTest {
 	}
 
 	@Test
-	void startStop_exceptionShouldBeThrownOnSendingEventToStoppedStateMachine() {
+	void startStop_acceptReturnsFalseWhenStateMachineIsStopped() {
 		stateMachine = buildMachineForStartStopTests();
 
-		assertThrows(IllegalStateException.class, () -> stateMachine.accept(STOP_EVENT));
+		stateMachine.start();
+		stateMachine.stop();
+
+		assertFalse(stateMachine.accept(STOP_EVENT));
 	}
 
 	@SuppressWarnings("unchecked")
