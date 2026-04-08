@@ -1,11 +1,12 @@
 package alex.band.statemachine.builder.impl;
 
+import static alex.band.statemachine.util.Asserts.checkState;
+
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static alex.band.statemachine.util.Asserts.checkState;
+import java.util.concurrent.ExecutorService;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
@@ -39,6 +40,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	static final String FINAL_STATE_IS_NOT_DEFINED = "Final State is not defined.";
 	static final String INITIAL_STATE_IS_NOT_DEFINED = "Initial State is not defined.";
 	static final String THERE_ARE_NO_STATES_DEFINED = "There are no States defined.";
+	static final String ASYNC_ACTIONS_WITHOUT_EXECUTOR = "AsyncActions are defined but ExecutorService is not set.";
 
 	private State<S, E> initialState;
 	private State<S, E> finalState;
@@ -46,10 +48,11 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	private Map<S, Set<Transition<S, E>>> transitions = new HashMap<>();
 	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
 	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
+	private ExecutorService executorService;
 
 	@Override
-	public StartStopActionsConfigurer defineStartStopActions() {
-		StartStopActionsConfigurerImpl  startStopConfigurer = new StartStopActionsConfigurerImpl();
+	public StartStopActionsConfigurer<S, E> defineStartStopActions() {
+		StartStopActionsConfigurerImpl<S, E> startStopConfigurer = new StartStopActionsConfigurerImpl<>();
 		startActions = startStopConfigurer.getStartActions();
 		stopActions = startStopConfigurer.getStopActions();
 		return startStopConfigurer;
@@ -66,7 +69,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	@Override
 	public void defineStates(Set<S> states) {
 		for (S state: states) {
-			addState(new StateImpl<S, E>(state));
+			addState(new StateImpl<>(state));
 		}
 	}
 
@@ -87,10 +90,17 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	@Override
+	public StateMachineBuilder<S, E> withExecutorService(ExecutorService executorService) {
+		this.executorService = executorService;
+		return this;
+	}
+
+	@Override
 	public StateMachine<S, E> build() {
 		validateStates();
 		validateTransitions();
 		validateTopology();
+		validateAsyncActions();
 		return createStateMachine();
 	}
 
@@ -144,6 +154,19 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		checkState(exitedStates.isEmpty(), STATES_WITHOUT_OUTBOUND_TRANSITION, exitedStates);
 	}
 
+	private void validateAsyncActions() {
+		if (executorService != null) {
+			return;
+		}
+		for (Set<Transition<S, E>> stateTransitions: transitions.values()) {
+			for (Transition<S, E> transition: stateTransitions) {
+				if (!transition.getAsyncActions().isEmpty()) {
+					checkState(false, ASYNC_ACTIONS_WITHOUT_EXECUTOR);
+				}
+			}
+		}
+	}
+
 	private Set<S> difference(Set<S> set1, Set<S> set2) {
 		Set<S> result = new LinkedHashSet<>(set1);
 		result.removeAll(set2);
@@ -168,6 +191,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		stateMachine.setStartActions(startActions);
 		stateMachine.setStopActions(stopActions);
 		stateMachine.setContext(new StateMachineContextImpl());
+		stateMachine.setExecutorService(executorService);
 
 		return stateMachine;
 	}
@@ -183,7 +207,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 
 	private void addTransition(S sourceState, Transition<S, E> transition) {
 		if (!transitions.containsKey(sourceState)) {
-			transitions.put(sourceState, new LinkedHashSet<Transition<S, E>>());
+			transitions.put(sourceState, new LinkedHashSet<>());
 		}
 		transitions.get(sourceState).add(transition);
 	}

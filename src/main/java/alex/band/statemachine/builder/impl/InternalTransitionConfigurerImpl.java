@@ -3,6 +3,7 @@ package alex.band.statemachine.builder.impl;
 import java.util.Set;
 
 import alex.band.statemachine.builder.InternalTransitionConfigurer;
+import alex.band.statemachine.transition.AsyncAction;
 import alex.band.statemachine.transition.Guard;
 import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
@@ -44,6 +45,18 @@ public class InternalTransitionConfigurerImpl<S, E> implements InternalTransitio
 	@Override
 	public InternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions) {
 		transition.addActions(actions);
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> withAsyncAction(AsyncAction<S, E> asyncAction) {
+		transition.addAsyncAction(asyncAction);
+		return this;
+	}
+
+	@Override
+	public InternalTransitionConfigurer<S, E> withAsyncActions(Set<AsyncAction<S, E>> asyncActions) {
+		transition.addAsyncActions(asyncActions);
 		return this;
 	}
 

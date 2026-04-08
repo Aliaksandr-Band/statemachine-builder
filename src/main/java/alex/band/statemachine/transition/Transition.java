@@ -50,6 +50,12 @@ public interface Transition<S, E> {
 	Set<TransitionAction<S, E>> getActions();
 
 	/**
+	 * Returns the set of {@link AsyncAction}s associated with the transition.
+	 * Executed asynchronously after the transition completes.
+	 */
+	Set<AsyncAction<S, E>> getAsyncActions();
+
+	/**
 	 * Returns the transition type: external or internal.
 	 */
 	boolean isExternal();

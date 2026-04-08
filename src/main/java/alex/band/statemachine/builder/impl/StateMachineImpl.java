@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import static alex.band.statemachine.util.Asserts.checkState;
 
@@ -15,6 +16,7 @@ import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.context.StateMachineContext;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.state.State;
+import alex.band.statemachine.transition.AsyncAction;
 import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
 
@@ -40,14 +42,15 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	private State<S, E> initialState;
 	private State<S, E> finalState;
-	private State<S, E> currentState;
+	private volatile State<S, E> currentState;
 	private Map<S, State<S, E>> states;
 
 	private Set<StateMachineStartAction<S, E>> startActions;
 	private Set<StateMachineStopAction<S, E>> stopActions;
 
-	private boolean running;
+	private volatile boolean running;
 	private StateMachineContext context;
+	private ExecutorService executorService;
 
 	private Queue<StateMachineMessage<E>> deferredQueue = new ArrayDeque<>();
 
@@ -82,7 +85,9 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	@Override
 	protected boolean doAccept(StateMachineMessage<E> message) {
-		checkState(running, "Statemachine is not running yet.");
+		if (!running) {
+			return false;
+		}
 
 		if (message == null) {
 			notifyEventNotAccepted(message);
@@ -122,6 +127,7 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 			doCurrentStateExit(transition);
 			executeTransitionActions(message, transition.get().getActions());
 			doNewStateEnter(transition, message);
+			executeAsyncActions(message, transition.get().getAsyncActions());
 			return true;
 		}
 
@@ -138,6 +144,15 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	private void executeTransitionActions(StateMachineMessage<E> message, Set<TransitionAction<S, E>> actions) {
 		for (TransitionAction<S, E> action:actions) {
 			action.execute(message, this);
+		}
+	}
+
+	private void executeAsyncActions(StateMachineMessage<E> message, Set<AsyncAction<S, E>> asyncActions) {
+		if (executorService == null || asyncActions.isEmpty()) {
+			return;
+		}
+		for (AsyncAction<S, E> asyncAction : asyncActions) {
+			executorService.submit(() -> asyncAction.execute(message, this));
 		}
 	}
 
@@ -193,6 +208,10 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	void setStopActions(Set<StateMachineStopAction<S, E>> stopActions) {
 		this.stopActions = stopActions;
+	}
+
+	void setExecutorService(ExecutorService executorService) {
+		this.executorService = executorService;
 	}
 
 }
