@@ -119,15 +119,36 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 		}
 	}
 
+	/**
+	 * Processes a single message by executing the transition pipeline:
+	 * exit current state → transition actions → enter new state → async actions.
+	 *
+	 * <p><b>Atomicity guarantee:</b> If any step throws an exception,
+	 * {@code currentState} is rolled back to the previous state before rethrowing.
+	 * The state machine never remains in an inconsistent state.
+	 *
+	 * <p><b>Side effects are NOT rolled back:</b> Actions executed before the failure
+	 * (e.g. {@code onExit}, transition actions) have already produced their side effects.
+	 * The caller is responsible for compensating those actions if needed.
+	 *
+	 * @param message the message to process
+	 * @return {@code true} if a matching transition was found and executed
+	 */
 	private boolean processMessage(StateMachineMessage<E> message) {
 
 		Optional<Transition<S, E>> transition = currentState.getSuitableTransition(message, this);
 		if (transition.isPresent()) {
 
-			doCurrentStateExit(transition);
-			executeTransitionActions(message, transition.get().getActions());
-			doNewStateEnter(transition, message);
-			executeAsyncActions(message, transition.get().getAsyncActions());
+			State<S, E> previousState = currentState;
+			try {
+				doCurrentStateExit(transition);
+				executeTransitionActions(message, transition.get().getActions());
+				doNewStateEnter(transition, message);
+				executeAsyncActions(message, transition.get().getAsyncActions());
+			} catch (Exception e) {
+				currentState = previousState;
+				throw e;
+			}
 			return true;
 		}
 
