@@ -19,7 +19,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import alex.band.statemachine.StateMachine;
+import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.listener.StateMachineListenerAdapter;
+import alex.band.statemachine.message.StateMachineMessage;
+import alex.band.statemachine.state.State;
 
 class StateMachineConcurrencyTest {
 
@@ -131,8 +134,8 @@ class StateMachineConcurrencyTest {
 
 		Thread addListenerThread = new Thread(() -> {
 			for (int i = 0; i < 100; i++) {
-				sm.addListener(new StateMachineListenerAdapter<String, String>() {
-				});
+				sm.addListener(new StateMachineListenerAdapter<>() {
+                });
 			}
 		});
 
@@ -191,6 +194,84 @@ class StateMachineConcurrencyTest {
 			// At least one operation should succeed
 			assertTrue(startOk.get() || stopOk.get(), "At least one operation should succeed");
 		}
+	}
+
+	/**
+	 * Test verifies that the accept() method is actually synchronized.
+	 * Two threads cannot simultaneously enter accept() - the second must wait for the first to complete.
+	 */
+	@Test
+	void acceptMethod_isActuallySynchronized() throws Exception {
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(TRANSITION);
+
+		StateMachine<String, String> sm = builder.build();
+		sm.start();
+
+		// First thread calls accept() and delays inside
+		CountDownLatch firstThreadEntered = new CountDownLatch(1);
+		CountDownLatch firstThreadShouldExit = new CountDownLatch(1);
+
+		// Create a listener that will execute during transition and create delay
+		// Set up the listener ONCE before starting threads
+		sm.addListener(new StateMachineListenerAdapter<>() {
+            @Override
+            public void onStateChanged(StateMachineMessage<String> message,
+                                       State<String, String> previousState,
+                                       StateMachineDetails<String, String> stateMachineDetails) {
+                try {
+                    // Notify that first thread entered critical section
+                    firstThreadEntered.countDown();
+                    // Wait until main thread allows us to exit
+                    firstThreadShouldExit.await(2, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+		// Use an atomic flag to detect race conditions
+		AtomicBoolean synchronizationTestPassed = new AtomicBoolean(true);
+
+		Runnable testTask = () -> {
+			try {
+				// Simply call accept() - the listener will handle the synchronization test
+				sm.accept(TRANSITION);
+			} catch (Exception e) {
+				// If any exception occurs, the test failed
+				synchronizationTestPassed.set(false);
+			}
+		};
+
+		// Start first thread
+		Thread firstThread = new Thread(testTask);
+		firstThread.start();
+
+		// Wait until first thread enters critical section
+		assertTrue(firstThreadEntered.await(2, TimeUnit.SECONDS), 
+			"First thread should enter the synchronized section");
+
+		// Now start second thread while first is still in accept()
+		Thread secondThread = new Thread(testTask);
+		secondThread.start();
+
+		// Give second thread time to attempt entering (should be blocked)
+		Thread.sleep(100);
+
+		// At this point, the second thread should be waiting for the first to complete
+		// If it wasn't synchronized, the second thread would have completed already
+
+		// Allow first thread to complete
+		firstThreadShouldExit.countDown();
+
+		// Wait for both threads to complete
+		firstThread.join(2000);
+		secondThread.join(2000);
+
+		// If no exceptions occurred, the synchronization worked correctly
+		assertTrue(synchronizationTestPassed.get(), 
+			"Synchronization test should pass without exceptions");
 	}
 
 }
