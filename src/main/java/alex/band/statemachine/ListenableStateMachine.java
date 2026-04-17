@@ -48,12 +48,12 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	protected abstract void doStop();
 
 	@Override
-	public boolean accept(E event) {
+	public synchronized boolean accept(E event) {
 		return accept(new StateMachineMessageImpl<>(event));
 	}
 
 	@Override
-	public boolean accept(StateMachineMessage<E> message) {
+	public synchronized boolean accept(StateMachineMessage<E> message) {
 		return doAccept(message);
 	}
 
