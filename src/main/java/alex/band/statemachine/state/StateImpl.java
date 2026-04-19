@@ -5,6 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
@@ -16,6 +18,8 @@ import alex.band.statemachine.transition.Transition;
  * @author Aliaksandr Bandarchyk
  */
 public class StateImpl<S, E> implements State<S, E> {
+
+	private static final Logger LOGGER = Logger.getLogger(StateImpl.class.getName());
 
 	private S stateId;
 	private Set<StateAction<S, E>> actions = new LinkedHashSet<>();
@@ -33,7 +37,16 @@ public class StateImpl<S, E> implements State<S, E> {
 		}
 
 		for (Transition<S, E> transition: transitions.get(message.getEvent())) {
-			if (!transition.getGuard().isPresent() || transition.getGuard().get().evaluate(message, context)) {
+			boolean guardPassed;
+			try {
+				guardPassed = !transition.getGuard().isPresent()
+					|| transition.getGuard().get().evaluate(message, context);
+			} catch (Exception e) {
+				// Guard evaluation failed - treat as guard not passed and continue checking other transitions
+				LOGGER.log(Level.WARNING, "Guard evaluation failed for transition in state " + stateId + ", treating as guard not passed", e);
+				guardPassed = false;
+			}
+			if (guardPassed) {
 				return Optional.of(transition);
 			}
 		}
