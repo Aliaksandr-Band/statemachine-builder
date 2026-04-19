@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -285,6 +286,150 @@ class StateMachineTransitionTest {
 		builder.defineInternalTransitionFor(S1).by(FALSE_EVENT).guardedBy(falseGuard).withAction(transitionAction);
 
 		return (StateMachineImpl<String, String>) builder.build();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void guardException_guardThrowsExceptionShouldBeTreatedAsFalseAndContinueCheckingOtherTransitions() {
+		Guard<String, String> exceptionGuard = mock(Guard.class);
+		when(exceptionGuard.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard evaluation error"));
+
+		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
+
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1).guardedBy(exceptionGuard);
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1).guardedBy(trueGuard);
+
+		StateMachineImpl<String, String> sm = (StateMachineImpl<String, String>) builder.build();
+		sm.start();
+
+		boolean accepted = sm.accept(E1);
+
+		assertTrue(accepted);
+		assertEquals(S2, sm.getCurrentState().getId());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void guardException_allGuardsThrowExceptionShouldNotAcceptEvent() {
+		Guard<String, String> exceptionGuard1 = mock(Guard.class);
+		Guard<String, String> exceptionGuard2 = mock(Guard.class);
+		when(exceptionGuard1.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard 1 evaluation error"));
+		when(exceptionGuard2.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard 2 evaluation error"));
+
+		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
+
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1).guardedBy(exceptionGuard1);
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1).guardedBy(exceptionGuard2);
+
+		StateMachineImpl<String, String> sm = (StateMachineImpl<String, String>) builder.build();
+		sm.start();
+
+		boolean accepted = sm.accept(E1);
+
+		assertFalse(accepted);
+		assertEquals(S1, sm.getCurrentState().getId());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void guardsComposerException_considerAllWithExceptionShouldTreatFailedGuardAsFalse() {
+		Guard<String, String> exceptionGuard = mock(Guard.class);
+		when(exceptionGuard.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard evaluation error in considerAll"));
+
+		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
+
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1)
+			.guardedBy(GuardsComposer.considerAll(trueGuard, exceptionGuard));
+
+		StateMachineImpl<String, String> sm = (StateMachineImpl<String, String>) builder.build();
+		sm.start();
+
+		boolean accepted = sm.accept(E1);
+
+		assertFalse(accepted);
+		assertEquals(S1, sm.getCurrentState().getId());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void guardsComposerException_considerAllWithExceptionAndTrueGuardShouldNotAcceptEvent() {
+		Guard<String, String> exceptionGuard = mock(Guard.class);
+		when(exceptionGuard.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard evaluation error in considerAll"));
+
+		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
+
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1)
+			.guardedBy(GuardsComposer.considerAll(trueGuard, exceptionGuard));
+
+		StateMachineImpl<String, String> sm = (StateMachineImpl<String, String>) builder.build();
+		sm.start();
+
+		boolean accepted = sm.accept(E1);
+
+		assertFalse(accepted);
+		assertEquals(S1, sm.getCurrentState().getId());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void guardsComposerException_considerAnyWithExceptionShouldContinueChecking() {
+		Guard<String, String> exceptionGuard = mock(Guard.class);
+		when(exceptionGuard.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard evaluation error in considerAny"));
+
+		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
+
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1)
+			.guardedBy(GuardsComposer.considerAny(exceptionGuard, trueGuard));
+
+		StateMachineImpl<String, String> sm = (StateMachineImpl<String, String>) builder.build();
+		sm.start();
+
+		boolean accepted = sm.accept(E1);
+
+		assertTrue(accepted);
+		assertEquals(S2, sm.getCurrentState().getId());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void guardsComposerException_considerAnyAllThrowExceptionShouldNotAcceptEvent() {
+		Guard<String, String> exceptionGuard1 = mock(Guard.class);
+		Guard<String, String> exceptionGuard2 = mock(Guard.class);
+		when(exceptionGuard1.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard 1 evaluation error in considerAny"));
+		when(exceptionGuard2.evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class)))
+			.thenThrow(new RuntimeException("Guard 2 evaluation error in considerAny"));
+
+		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
+
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1)
+			.guardedBy(GuardsComposer.considerAny(exceptionGuard1, exceptionGuard2));
+
+		StateMachineImpl<String, String> sm = (StateMachineImpl<String, String>) builder.build();
+		sm.start();
+
+		boolean accepted = sm.accept(E1);
+
+		assertFalse(accepted);
+		assertEquals(S1, sm.getCurrentState().getId());
 	}
 
 }
