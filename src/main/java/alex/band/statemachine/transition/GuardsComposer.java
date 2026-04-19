@@ -2,6 +2,9 @@ package alex.band.statemachine.transition;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
 
@@ -25,6 +28,7 @@ public class GuardsComposer {
 	
 	private static class ConsiderAllGuard<S, E> implements Guard<S, E> {
 		
+		private static final Logger logger = LoggerFactory.getLogger(ConsiderAllGuard.class);
 		private Guard<S, E>[] guards;
 		
 		@SafeVarargs
@@ -34,13 +38,23 @@ public class GuardsComposer {
 
 		@Override
 		public boolean evaluate(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
-			return Arrays.stream(guards)
-					.allMatch(guard -> guard.evaluate(message, context));
+			for (Guard<S, E> guard : guards) {
+				try {
+					if (!guard.evaluate(message, context)) {
+						return false;
+					}
+				} catch (Exception e) {
+					logger.error("Guard evaluation failed in ConsiderAllGuard: {}", e.getMessage(), e);
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 
 	private static class ConsiderAnyGuard<S, E> implements Guard<S, E> {
 
+		private static final Logger logger = LoggerFactory.getLogger(ConsiderAnyGuard.class);
 		private Guard<S, E>[] guards;
 		
 		@SafeVarargs
@@ -50,8 +64,17 @@ public class GuardsComposer {
 
 		@Override
 		public boolean evaluate(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
-			return Arrays.stream(guards)
-					.anyMatch(guard -> guard.evaluate(message, context));
+			for (Guard<S, E> guard : guards) {
+				try {
+					if (guard.evaluate(message, context)) {
+						return true;
+					}
+				} catch (Exception e) {
+					logger.error("Guard evaluation failed in ConsiderAnyGuard: {}", e.getMessage(), e);
+					// Continue to next guard
+				}
+			}
+			return false;
 		}
 
 	}

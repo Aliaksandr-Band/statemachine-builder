@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.transition.Transition;
@@ -17,6 +20,8 @@ import alex.band.statemachine.transition.Transition;
  */
 public class StateImpl<S, E> implements State<S, E> {
 
+	private static final Logger logger = LoggerFactory.getLogger(StateImpl.class);
+	
 	private S stateId;
 	private Set<StateAction<S, E>> actions = new LinkedHashSet<>();
 	private Map<E, Set<Transition<S, E>>> transitions = new HashMap<>();
@@ -33,7 +38,20 @@ public class StateImpl<S, E> implements State<S, E> {
 		}
 
 		for (Transition<S, E> transition: transitions.get(message.getEvent())) {
-			if (!transition.getGuard().isPresent() || transition.getGuard().get().evaluate(message, context)) {
+			if (!transition.getGuard().isPresent()) {
+				return Optional.of(transition);
+			}
+			
+			boolean guardPassed;
+			try {
+				guardPassed = transition.getGuard().get().evaluate(message, context);
+			} catch (Exception e) {
+				logger.error("Guard evaluation failed for transition from state {} on event {}: {}", 
+					stateId, message.getEvent(), e.getMessage(), e);
+				guardPassed = false;
+			}
+			
+			if (guardPassed) {
 				return Optional.of(transition);
 			}
 		}
