@@ -5,7 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.NOPLogger;
 
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
@@ -18,7 +21,7 @@ import alex.band.statemachine.transition.Transition;
  */
 public class StateImpl<S, E> implements State<S, E> {
 
-	private static final Logger logger = Logger.getLogger(StateImpl.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(StateImpl.class);
 
 	private S stateId;
 	private Set<StateAction<S, E>> actions = new LinkedHashSet<>();
@@ -44,7 +47,12 @@ public class StateImpl<S, E> implements State<S, E> {
 					return Optional.of(transition);
 				}
 			} catch (Exception e) {
-				logger.warning("Guard evaluation failed: " + e.getMessage());
+				String errorMsg = "Guard evaluation failed: " + e.getMessage();
+				if (logger instanceof NOPLogger) {
+					System.err.println("[StateImpl] " + errorMsg);
+				} else {
+					logger.warn(errorMsg);
+				}
 			}
 		}
 

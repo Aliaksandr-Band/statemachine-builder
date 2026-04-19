@@ -1,7 +1,10 @@
 package alex.band.statemachine.transition;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.NOPLogger;
 
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
@@ -11,7 +14,7 @@ import alex.band.statemachine.message.StateMachineMessage;
  */
 public class GuardsComposer {
 
-	private static final Logger logger = Logger.getLogger(GuardsComposer.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(GuardsComposer.class);
 
 	private GuardsComposer() {
 	}
@@ -42,7 +45,12 @@ public class GuardsComposer {
 					try {
 						return guard.evaluate(message, context);
 					} catch (Exception e) {
-						logger.warning("Guard evaluation failed in considerAll: " + e.getMessage());
+						String errorMsg = "Guard evaluation failed in considerAll: " + e.getMessage();
+						if (logger instanceof NOPLogger) {
+							System.err.println("[GuardsComposer] " + errorMsg);
+						} else {
+							logger.warn(errorMsg);
+						}
 						return false;
 					}
 				});
@@ -65,7 +73,12 @@ public class GuardsComposer {
 					try {
 						return guard.evaluate(message, context);
 					} catch (Exception e) {
-						logger.warning("Guard evaluation failed in considerAny: " + e.getMessage());
+						String errorMsg = "Guard evaluation failed in considerAny: " + e.getMessage();
+						if (logger instanceof NOPLogger) {
+							System.err.println("[GuardsComposer] " + errorMsg);
+						} else {
+							logger.warn(errorMsg);
+						}
 						return false;
 					}
 				});
