@@ -1,6 +1,7 @@
 package alex.band.statemachine.transition;
 
-import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
@@ -9,7 +10,9 @@ import alex.band.statemachine.message.StateMachineMessage;
  * @author Aliaksandr Bandarchyk
  */
 public class GuardsComposer {
-	
+
+	private static final Logger LOGGER = Logger.getLogger(GuardsComposer.class.getName());
+
 	private GuardsComposer() {
 	}
 	
@@ -34,8 +37,17 @@ public class GuardsComposer {
 
 		@Override
 		public boolean evaluate(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
-			return Arrays.stream(guards)
-					.allMatch(guard -> guard.evaluate(message, context));
+			for (Guard<S, E> guard : guards) {
+				try {
+					if (!guard.evaluate(message, context)) {
+						return false;
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.WARNING, "Guard evaluation failed in ConsiderAllGuard, treating as false", e);
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 
@@ -50,8 +62,17 @@ public class GuardsComposer {
 
 		@Override
 		public boolean evaluate(StateMachineMessage<E> message, StateMachineDetails<S, E> context) {
-			return Arrays.stream(guards)
-					.anyMatch(guard -> guard.evaluate(message, context));
+			for (Guard<S, E> guard : guards) {
+				try {
+					if (guard.evaluate(message, context)) {
+						return true;
+					}
+				} catch (Exception e) {
+					LOGGER.log(Level.WARNING, "Guard evaluation failed in ConsiderAnyGuard, treating as false", e);
+					// Continue checking other guards
+				}
+			}
+			return false;
 		}
 
 	}
