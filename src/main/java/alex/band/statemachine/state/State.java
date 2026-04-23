@@ -39,9 +39,4 @@ public interface State<S, E> {
 	 */
 	S getId();
 
-	/**
-	 * Returns {@code true} if the given {@link StateMachineMessage} can be deferred in the current state.
-	 */
-	boolean canBeDeferred(StateMachineMessage<E> message);
-
 }

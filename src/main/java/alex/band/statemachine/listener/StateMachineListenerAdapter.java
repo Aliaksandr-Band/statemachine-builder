@@ -31,9 +31,4 @@ public abstract class StateMachineListenerAdapter<S, E> implements StateMachineL
 		// do nothing by default
 	}
 
-	@Override
-	public void onEventDeferred(StateMachineMessage<E> message, State<S, E> currentState, StateMachineDetails<S, E> stateMachineDetails) {
-		// do nothing by default
-	}
-
 }

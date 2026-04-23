@@ -1,5 +1,6 @@
 package alex.band.statemachine.listener;
 
+import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.state.State;
@@ -50,21 +51,5 @@ public interface StateMachineListener<S, E> {
 	 * and the state machine details via the {@link StateMachineDetails} interface.
 	 */
 	void onEventNotAccepted(StateMachineMessage<E> message, StateMachineDetails<S, E> stateMachineDetails);
-
-	/**
-	 * Called when an incoming {@link StateMachineMessage} is accepted but deferred for later processing
-	 * because the current state is not ready to handle it.
-	 *
-	 * <p>The deferred event will be stored in the queue and automatically processed when the state machine
-	 * transitions to a state that can handle it.
-	 *
-	 * <p>The listener receives information about the {@link StateMachineMessage} that was deferred,
-	 * the current {@link State}, and the state machine details via the {@link StateMachineDetails} interface.
-	 *
-	 * @param message the deferred message
-	 * @param currentState the current state that deferred the event
-	 * @param stateMachineDetails the state machine details
-	 */
-	void onEventDeferred(StateMachineMessage<E> message, State<S, E> currentState, StateMachineDetails<S, E> stateMachineDetails);
 
 }

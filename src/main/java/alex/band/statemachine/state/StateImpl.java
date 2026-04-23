@@ -24,7 +24,6 @@ public class StateImpl<S, E> implements State<S, E> {
 	private S stateId;
 	private Set<StateAction<S, E>> actions = new LinkedHashSet<>();
 	private Map<E, Set<Transition<S, E>>> transitions = new HashMap<>();
-	private Set<E> deferredEvents = new LinkedHashSet<>();
 
 	public StateImpl(S stateId) {
 		this.stateId = stateId;
@@ -73,14 +72,10 @@ public class StateImpl<S, E> implements State<S, E> {
 		return stateId;
 	}
 
-	@Override
-	public boolean canBeDeferred(StateMachineMessage<E> message) {
-		return deferredEvents.contains(message.getEvent());
-	}
 
 	@Override
 	public String toString() {
-		return "StateImpl [stateId=" + stateId + ", deferredEvents=" + deferredEvents + "]";
+		return "StateImpl [stateId=" + stateId + "]";
 	}
 
 	public void addActions(Set<StateAction<S, E>> actions) {
@@ -93,17 +88,9 @@ public class StateImpl<S, E> implements State<S, E> {
 
 	public void addTransition(Transition<S, E> transition) {
 		if (!transitions.containsKey(transition.getEvent())) {
-			transitions.put(transition.getEvent(), new LinkedHashSet<Transition<S, E>>());
+			transitions.put(transition.getEvent(), new LinkedHashSet<>());
 		}
 		transitions.get(transition.getEvent()).add(transition);
-	}
-
-	public void addDeferredEvent(E deferredEvent) {
-		this.deferredEvents.add(deferredEvent);
-	}
-
-	public void addDeferredEvents(Set<E> deferredEvents) {
-		this.deferredEvents.addAll(deferredEvents);
 	}
 
 }

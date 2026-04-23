@@ -75,18 +75,6 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	}
 
 	/**
-	 * Notifies all registered listeners that an event has been deferred.
-	 *
-	 * @param message the deferred message
-	 * @param currentState the current state that deferred the event
-	 */
-	protected void notifyEventDeferred(StateMachineMessage<E> message, State<S, E> currentState) {
-		for (StateMachineListener<S, E> listener: listeners) {
-			listener.onEventDeferred(message, currentState, this);
-		}
-	}
-
-	/**
 	 * Notifies all registered listeners that an event was not accepted.
 	 *
 	 * @param message the message that was not accepted

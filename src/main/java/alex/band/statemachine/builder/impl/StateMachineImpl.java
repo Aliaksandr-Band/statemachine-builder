@@ -1,13 +1,11 @@
 package alex.band.statemachine.builder.impl;
 
-import java.util.ArrayDeque;
+import static alex.band.statemachine.util.Asserts.checkState;
+
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-
-import static alex.band.statemachine.util.Asserts.checkState;
 
 import alex.band.statemachine.ListenableStateMachine;
 import alex.band.statemachine.StateMachine;
@@ -52,13 +50,11 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	private StateMachineContext context;
 	private ExecutorService executorService;
 
-	private Queue<StateMachineMessage<E>> deferredQueue = new ArrayDeque<>();
 
 	@Override
 	protected void doStart() {
 		checkState(!running, "Statemachine is already running.");
 
-		deferredQueue.clear();
 		for (StateMachineStartAction<S, E> action: startActions) {
 			action.onStart(this);
 		}
@@ -94,30 +90,10 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 			return false;
 		}
 
-		if (currentState.canBeDeferred(message)) {
-			deferredQueue.offer(message);
-			notifyEventDeferred(message, currentState);
-			return true;
-		}
+		return processMessage(message);
 
-		boolean messageAccepted = processMessage(message);
-
-		processDeferredQueue();
-
-		return messageAccepted;
 	}
 
-	private void processDeferredQueue() {
-		while (!deferredQueue.isEmpty() && !currentState.equals(finalState)) {
-			StateMachineMessage<E> deferredMessage = deferredQueue.peek();
-			if (!currentState.canBeDeferred(deferredMessage)) {
-				processMessage(deferredMessage);
-				deferredQueue.poll();
-			} else {
-				break;
-			}
-		}
-	}
 
 	/**
 	 * Processes a single message by executing the transition pipeline:
@@ -197,14 +173,6 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	@Override
 	public StateMachineContext getContext() {
 		return context;
-	}
-
-	boolean hasDeferredMessages() {
-		return !deferredQueue.isEmpty();
-	}
-
-	int getDeferredQueueSize() {
-		return deferredQueue.size();
 	}
 
 	void setInitialState(State<S, E> initialState) {

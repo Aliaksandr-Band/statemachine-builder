@@ -35,14 +35,4 @@ public interface StatesConfigurer<S, E> {
 	 */
 	StatesConfigurer<S, E> withAction(StateAction<S, E> action);
 
-	/**
-	 * Sets a deferred event for the configured state.
-	 */
-	StatesConfigurer<S, E> withDeferredEvent(E deferredEvent);
-
-	/**
-	 * Sets a set of deferred events for the configured state.
-	 */
-	StatesConfigurer<S, E> withDeferredEvents(Set<E> deferredEvents);
-
 }

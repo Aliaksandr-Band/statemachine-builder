@@ -45,16 +45,4 @@ public class StatesConfigurerImpl<S, E> implements StatesConfigurer<S, E> {
 		return this;
 	}
 
-	@Override
-	public StatesConfigurer<S, E> withDeferredEvent(E deferredEvent) {
-		state.addDeferredEvent(deferredEvent);
-		return this;
-	}
-
-	@Override
-	public StatesConfigurer<S, E> withDeferredEvents(Set<E> deferredEvents) {
-		state.addDeferredEvents(deferredEvents);
-		return this;
-	}
-
 }
