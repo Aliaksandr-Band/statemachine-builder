@@ -43,7 +43,7 @@ public class StateImpl<S, E> implements State<S, E> {
 					|| transition.getGuard().get().evaluate(message, context);
 			} catch (Exception e) {
 				// Guard evaluation failed - treat as guard not passed and continue checking other transitions
-				LOGGER.log(Level.WARNING, "Guard evaluation failed for transition in state " + stateId + ", treating as guard not passed", e);
+				LOGGER.log(Level.SEVERE, "Guard evaluation failed for transition in state " + stateId + ", treating as guard not passed", e);
 				guardPassed = false;
 			}
 			if (guardPassed) {
@@ -56,15 +56,33 @@ public class StateImpl<S, E> implements State<S, E> {
 
 	@Override
 	public void onEnter(StateMachineDetails<S, E> context) {
+		int index = 0;
 		for (StateAction<S, E> action: actions) {
-			action.onEnter(context);
+			try {
+				action.onEnter(context);
+				index++;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, String.format(
+					"State action #%d (onEnter) failed in state %s: %s",
+					index, stateId, e.getMessage()), e);
+				throw e;
+			}
 		}
 	}
 
 	@Override
 	public void onExit(StateMachineDetails<S, E> context) {
+		int index = 0;
 		for (StateAction<S, E> action: actions) {
-			action.onExit(context);
+			try {
+				action.onExit(context);
+				index++;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, String.format(
+					"State action #%d (onExit) failed in state %s: %s",
+					index, stateId, e.getMessage()), e);
+				throw e;
+			}
 		}
 	}
 

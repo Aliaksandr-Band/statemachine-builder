@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static alex.band.statemachine.util.Asserts.checkState;
 
@@ -39,6 +41,8 @@ import alex.band.statemachine.transition.TransitionAction;
  * @author Aliaksandr Bandarchyk
  */
 public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
+
+	private static final Logger LOGGER = Logger.getLogger(StateMachineImpl.class.getName());
 
 	private State<S, E> initialState;
 	private State<S, E> finalState;
@@ -163,8 +167,17 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	}
 
 	private void executeTransitionActions(StateMachineMessage<E> message, Set<TransitionAction<S, E>> actions) {
-		for (TransitionAction<S, E> action:actions) {
-			action.execute(message, this);
+		int index = 0;
+		for (TransitionAction<S, E> action: actions) {
+			try {
+				action.execute(message, this);
+				index++;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, String.format(
+					"Transition action #%d failed for event %s: %s",
+					index, message.getEvent(), e.getMessage()), e);
+				throw e;
+			}
 		}
 	}
 

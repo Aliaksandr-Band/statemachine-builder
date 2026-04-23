@@ -43,7 +43,7 @@ public class GuardsComposer {
 						return false;
 					}
 				} catch (Exception e) {
-					LOGGER.log(Level.WARNING, "Guard evaluation failed in ConsiderAllGuard, treating as false", e);
+					LOGGER.log(Level.SEVERE, "Guard evaluation failed in ConsiderAllGuard, treating as false", e);
 					return false;
 				}
 			}
@@ -68,7 +68,7 @@ public class GuardsComposer {
 						return true;
 					}
 				} catch (Exception e) {
-					LOGGER.log(Level.WARNING, "Guard evaluation failed in ConsiderAnyGuard, treating as false", e);
+					LOGGER.log(Level.SEVERE, "Guard evaluation failed in ConsiderAnyGuard, treating as false", e);
 					// Continue checking other guards
 				}
 			}
