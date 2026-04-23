@@ -28,7 +28,7 @@ import alex.band.statemachine.transition.Transition;
  */
 public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> {
 
-	static final String FINAL_STATE_ALREADY_DEFINED = "Final State already defined. Defined State %s, new State %s";
+	static final String FINAL_STATE_ALREADY_DEFINED = "Final State with equal ID already defined: %s";
 	static final String INITIAL_STATE_ALREADY_DEFINED = "Initial State already defined. Defined State %s, new State %s";
 	static final String STATE_ALREADY_DEFINED = "State with equal ID already defined: %s";
 	static final String STATES_WITHOUT_OUTBOUND_TRANSITION = "There are States which don't have outbound transition: %s";
@@ -43,7 +43,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	static final String ASYNC_ACTIONS_WITHOUT_EXECUTOR = "AsyncActions are defined but ExecutorService is not set.";
 
 	private State<S, E> initialState;
-	private State<S, E> finalState;
+	private Map<S, State<S, E>> finalStates = new HashMap<>();
 	private Map<S, State<S, E>> states = new HashMap<>();
 	private Map<S, Set<Transition<S, E>>> transitions = new HashMap<>();
 	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
@@ -107,7 +107,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	private void validateStates() {
 		checkState(!states.isEmpty(), THERE_ARE_NO_STATES_DEFINED);
 		checkState(initialState != null, INITIAL_STATE_IS_NOT_DEFINED);
-		checkState(finalState != null, FINAL_STATE_IS_NOT_DEFINED);
+		checkState(!finalStates.isEmpty(), FINAL_STATE_IS_NOT_DEFINED);
 	}
 
 	private void validateTransitions() {
@@ -127,8 +127,10 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 				checkState((transition.isExternal() == transition.getTarget().isPresent()),
 						EXTERNAL_TRANSITION_HAS_NO_TARGET_STATE, transition);
 
-				checkState(!transition.getSource().equals(finalState.getId()),
-						ILLEGAL_TRANSITION_FROM_FINAL_STATE, transition);
+				for (State<S, E> finalState : finalStates.values()) {
+					checkState(!transition.getSource().equals(finalState.getId()), ILLEGAL_TRANSITION_FROM_FINAL_STATE,
+							transition);
+				}
 
 				if (transition.getTarget().isPresent()) {
 					targetStates.add(transition.getTarget().get());
@@ -142,7 +144,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		Set<S> enteredStates = new LinkedHashSet<>(states.keySet());
 		Set<S> exitedStates = new LinkedHashSet<>(states.keySet());
 		enteredStates.remove(initialState.getId());
-		exitedStates.remove(finalState.getId());
+		exitedStates.removeAll(finalStates.keySet());
 
 		for (Set<Transition<S, E>> stateTransitions: transitions.values()) {
 			for (Transition<S, E> transition: stateTransitions) {
@@ -186,7 +188,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		connectTransitionsWithSourceStates();
 		StateMachineImpl<S, E> stateMachine = new StateMachineImpl<>();
 		stateMachine.setInitialState(initialState);
-		stateMachine.setFinalState(finalState);
+		stateMachine.setFinalStates(finalStates);
 		stateMachine.setStates(states);
 		stateMachine.setStartActions(startActions);
 		stateMachine.setStopActions(stopActions);
@@ -223,8 +225,8 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	void setFinalState(State<S, E> state) {
-		checkState(finalState == null, FINAL_STATE_ALREADY_DEFINED, finalState, state);
-		finalState = state;
+		checkState(!finalStates.containsKey(state.getId()), FINAL_STATE_ALREADY_DEFINED, state);
+		finalStates.put(state.getId(), state);
 	}
 
 }

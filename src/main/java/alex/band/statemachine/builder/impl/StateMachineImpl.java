@@ -39,7 +39,7 @@ import alex.band.statemachine.transition.TransitionAction;
 public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	private State<S, E> initialState;
-	private State<S, E> finalState;
+	private Map<S, State<S, E>> finalStates;
 	private volatile State<S, E> currentState;
 	private Map<S, State<S, E>> states;
 
@@ -160,7 +160,7 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 			currentState.onEnter(this);
 			notifyStateChanged(message, previousState);
 		}
-		if (finalState.equals(currentState)) {
+		if (finalStates.equals(currentState)) {
 			stop();
 		}
 	}
@@ -179,8 +179,8 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 		this.initialState = initialState;
 	}
 
-	void setFinalState(State<S, E> finalState) {
-		this.finalState = finalState;
+	void setFinalStates(Map<S, State<S, E>> finalStates) {
+		this.finalStates = finalStates;
 	}
 
 	void setStates(Map<S, State<S, E>> states) {

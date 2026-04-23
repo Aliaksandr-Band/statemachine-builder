@@ -121,7 +121,7 @@ class StateMachineBuilderImplTest {
 	}
 
 	@Test
-	void allStatesExceptInitialShouldHaveInboundTransition() {
+	void allStatesExceptInitialShouldHaveInboundTransition_caseWithTwoStates() {
 		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
 			builder.defineState(S1).asInitial();
 			builder.defineState(S2).asFinal();
@@ -131,6 +131,20 @@ class StateMachineBuilderImplTest {
 		assertTrue(ex.getMessage().contains(S2));
 	}
 
+	@Test
+	void allStatesExceptInitialShouldHaveInboundTransition_caseWithThreeStates() {
+		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
+			builder.defineState(S1).asInitial();
+			builder.defineState(S2);
+			builder.defineState(S3).asFinal();
+			builder.defineExternalTransitionFor(S1).to(S3).by(E1);
+			builder.defineExternalTransitionFor(S2).to(S3).by(E1);
+			builder.build();
+		});
+		assertTrue(ex.getMessage()
+				.contains(withoutPlaceholder(StateMachineBuilderImpl.STATES_WITHOUT_INBOUND_TRANSITION)));
+		assertTrue(ex.getMessage().contains(S2));
+	}
 
 	@Test
 	void allStatesExceptFinalShouldHaveOutboundTransition() {
@@ -166,12 +180,13 @@ class StateMachineBuilderImplTest {
 	}
 
 	@Test
-	void finalStateCannotBeDefinedTwice() {
-		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-			builder.defineState(S1).asFinal();
-			builder.defineState(S2).asFinal();
-		});
-		assertTrue(ex.getMessage().contains(withoutPlaceholder(StateMachineBuilderImpl.FINAL_STATE_ALREADY_DEFINED)));
+	void multipleFinalStatesAreAllowed() {
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineState(S3).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1);
+		builder.defineExternalTransitionFor(S1).to(S3).by(E2);
+		builder.build();
 	}
 
 	@Test
