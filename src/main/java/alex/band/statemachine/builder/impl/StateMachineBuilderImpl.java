@@ -28,7 +28,6 @@ import alex.band.statemachine.transition.Transition;
  */
 public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> {
 
-	static final String FINAL_STATE_ALREADY_DEFINED = "Final State with equal ID already defined: %s";
 	static final String INITIAL_STATE_ALREADY_DEFINED = "Initial State already defined. Defined State %s, new State %s";
 	static final String STATE_ALREADY_DEFINED = "State with equal ID already defined: %s";
 	static final String STATES_WITHOUT_OUTBOUND_TRANSITION = "There are States which don't have outbound transition: %s";
@@ -210,7 +209,6 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	void setFinalState(State<S, E> state) {
-		checkState(!finalStates.containsKey(state.getId()), FINAL_STATE_ALREADY_DEFINED, state);
 		finalStates.put(state.getId(), state);
 	}
 
