@@ -44,27 +44,28 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	private Set<StateMachineStartAction<S, E>> startActions;
 	private Set<StateMachineStopAction<S, E>> stopActions;
 
-	private volatile boolean running;
 	private StateMachineContext context;
+	private volatile Mode mode;
 
 
 	@Override
 	protected void doStart() {
-		checkState(!running, "Statemachine is already running.");
+		checkState(mode == Mode.READY, "Statemachine is already running or stopped.");
 
 		for (StateMachineStartAction<S, E> action: startActions) {
 			action.onStart(this);
 		}
 
-		running = true;
+		mode = Mode.RUNNING;
 		currentState = initialState;
 		currentState.onEnter(this);
 	}
 
 	@Override
 	protected void doStop() {
+		checkState(mode == Mode.RUNNING, "Statemachine is not running.");
 		currentState.onExit(this);
-		running = false;
+		mode = Mode.STOPPED;
 
 		for (StateMachineStopAction<S, E> action: stopActions) {
 			action.onStop(this);
@@ -72,13 +73,8 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running;
-	}
-
-	@Override
 	protected boolean doAccept(StateMachineMessage<E> message) {
-		if (!running) {
+		if (!isRunning()) {
 			return false;
 		}
 
@@ -184,6 +180,25 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	void setStopActions(Set<StateMachineStopAction<S, E>> stopActions) {
 		this.stopActions = stopActions;
+	}
+
+	void setReady() {
+		mode = Mode.READY;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return Mode.RUNNING == mode;
+	}
+
+	@Override
+	public boolean isReady() {
+		return Mode.READY == mode;
+	}
+
+	@Override
+	public boolean isStopped() {
+		return Mode.STOPPED == mode;
 	}
 
 }

@@ -178,6 +178,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		stateMachine.setStartActions(startActions);
 		stateMachine.setStopActions(stopActions);
 		stateMachine.setContext(context);
+		stateMachine.setReady();
 
 		return stateMachine;
 	}

@@ -76,12 +76,15 @@ class StateMachineLifecycleTest {
 	@Test
 	void startStop_stateMachineShouldBeRunningOnlyAfterStart() {
 		stateMachine = buildMachineForStartStopTests();
+		assertTrue(stateMachine.isReady());
 		assertFalse(stateMachine.isRunning());
 
 		stateMachine.start();
+		assertFalse(stateMachine.isReady());
 		assertTrue(stateMachine.isRunning());
 
 		stateMachine.stop();
+		assertFalse(stateMachine.isReady());
 		assertFalse(stateMachine.isRunning());
 	}
 
@@ -117,7 +120,69 @@ class StateMachineLifecycleTest {
 		stateMachine.start();
 		stateMachine.stop();
 
+		assertTrue(stateMachine.isStopped());
 		assertFalse(stateMachine.accept(STOP_EVENT));
+	}
+
+	@Test
+	void lifecycle_newStateMachineShouldBeReady() {
+		stateMachine = buildMachineForStartStopTests();
+
+		assertTrue(stateMachine.isReady());
+		assertFalse(stateMachine.isRunning());
+		assertFalse(stateMachine.isStopped());
+	}
+
+	@Test
+	void lifecycle_isReadyShouldReturnCorrectState() {
+		stateMachine = buildMachineForStartStopTests();
+
+		assertTrue(stateMachine.isReady());
+
+		stateMachine.start();
+		assertFalse(stateMachine.isReady());
+
+		stateMachine.stop();
+		assertFalse(stateMachine.isReady());
+	}
+
+	@Test
+	void lifecycle_isStoppedShouldReturnTrueAfterStop() {
+		stateMachine = buildMachineForStartStopTests();
+
+		assertFalse(stateMachine.isStopped());
+
+		stateMachine.start();
+		assertFalse(stateMachine.isStopped());
+
+		stateMachine.stop();
+		assertTrue(stateMachine.isStopped());
+	}
+
+	@Test
+	void lifecycle_stopShouldNotBeCalledBeforeStart() {
+		stateMachine = buildMachineForStartStopTests();
+
+		assertThrows(IllegalStateException.class, () -> stateMachine.stop());
+	}
+
+	@Test
+	void lifecycle_allThreeStatesShouldBeMutuallyExclusive() {
+		stateMachine = buildMachineForStartStopTests();
+
+		assertTrue(stateMachine.isReady());
+		assertFalse(stateMachine.isRunning());
+		assertFalse(stateMachine.isStopped());
+
+		stateMachine.start();
+		assertFalse(stateMachine.isReady());
+		assertTrue(stateMachine.isRunning());
+		assertFalse(stateMachine.isStopped());
+
+		stateMachine.stop();
+		assertFalse(stateMachine.isReady());
+		assertFalse(stateMachine.isRunning());
+		assertTrue(stateMachine.isStopped());
 	}
 
 	@SuppressWarnings("unchecked")
