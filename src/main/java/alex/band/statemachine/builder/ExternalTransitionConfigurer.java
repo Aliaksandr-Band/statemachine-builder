@@ -2,8 +2,9 @@ package alex.band.statemachine.builder;
 
 import java.util.Set;
 
-import alex.band.statemachine.transition.AsyncAction;
+import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.transition.Guard;
+import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
@@ -40,15 +41,5 @@ public interface ExternalTransitionConfigurer<S, E> {
 	 * Sets a set of {@link TransitionAction}s to be executed during the transition.
 	 */
 	ExternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions);
-
-	/**
-	 * Sets an {@link AsyncAction} to be executed asynchronously after the transition completes.
-	 */
-	ExternalTransitionConfigurer<S, E> withAsyncAction(AsyncAction<S, E> asyncAction);
-
-	/**
-	 * Sets a set of {@link AsyncAction}s to be executed asynchronously after the transition completes.
-	 */
-	ExternalTransitionConfigurer<S, E> withAsyncActions(Set<AsyncAction<S, E>> asyncActions);
 
 }

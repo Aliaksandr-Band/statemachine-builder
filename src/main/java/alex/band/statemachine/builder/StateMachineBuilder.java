@@ -1,7 +1,6 @@
 package alex.band.statemachine.builder;
 
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
@@ -48,12 +47,6 @@ public interface StateMachineBuilder<S, E> {
 	 * Configures internal {@link Transition} of the {@link StateMachine}.
 	 */
 	InternalTransitionConfigurer<S, E>  defineInternalTransitionFor(S sourceState);
-
-	/**
-	 * Sets the {@link ExecutorService} for executing {@link alex.band.statemachine.transition.AsyncAction}s.
-	 * It must be set, if async actions are configured.
-	 */
-	StateMachineBuilder<S, E> withExecutorService(ExecutorService executorService);
 
 	/**
 	 * Builds the {@link StateMachine} with the given configuration.

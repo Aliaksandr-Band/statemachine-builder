@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.concurrent.Executors;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -210,33 +208,6 @@ class StateMachineBuilderImplTest {
 
 		stateMachine.accept(E1);
 		assertEquals(S3, stateMachine.getCurrentState().getId());
-	}
-
-	@Test
-	void asyncActionsWithoutExecutorServiceIsNotAllowed() {
-		IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
-			builder.defineState(S1).asInitial();
-			builder.defineState(S2).asFinal();
-			builder.defineExternalTransitionFor(S1).to(S2).by(E1)
-					.withAsyncAction((msg, ctx) -> {});
-			builder.build();
-		});
-		assertTrue(ex.getMessage().contains(StateMachineBuilderImpl.ASYNC_ACTIONS_WITHOUT_EXECUTOR));
-	}
-
-	@Test
-	void asyncActionsWithExecutorServiceIsAllowed() {
-		var executor = Executors.newSingleThreadExecutor();
-		try {
-			builder.withExecutorService(executor);
-			builder.defineState(S1).asInitial();
-			builder.defineState(S2).asFinal();
-			builder.defineExternalTransitionFor(S1).to(S2).by(E1)
-					.withAsyncAction((msg, ctx) -> {});
-			builder.build();
-		} finally {
-			executor.shutdown();
-		}
 	}
 
 	@Test

@@ -5,7 +5,6 @@ import static alex.band.statemachine.util.Asserts.checkState;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import alex.band.statemachine.ListenableStateMachine;
 import alex.band.statemachine.StateMachine;
@@ -14,7 +13,6 @@ import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.context.StateMachineContext;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.state.State;
-import alex.band.statemachine.transition.AsyncAction;
 import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
 
@@ -48,7 +46,6 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	private volatile boolean running;
 	private StateMachineContext context;
-	private ExecutorService executorService;
 
 
 	@Override
@@ -120,7 +117,6 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 				doCurrentStateExit(transition);
 				executeTransitionActions(message, transition.get().getActions());
 				doNewStateEnter(transition, message);
-				executeAsyncActions(message, transition.get().getAsyncActions());
 			} catch (Exception e) {
 				currentState = previousState;
 				throw e;
@@ -144,15 +140,6 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 		}
 	}
 
-	private void executeAsyncActions(StateMachineMessage<E> message, Set<AsyncAction<S, E>> asyncActions) {
-		if (executorService == null || asyncActions.isEmpty()) {
-			return;
-		}
-		for (AsyncAction<S, E> asyncAction : asyncActions) {
-			executorService.submit(() -> asyncAction.execute(message, this));
-		}
-	}
-
 	private void doNewStateEnter(Optional<Transition<S, E>> transition, StateMachineMessage<E> message) {
 		if (transition.get().isExternal()) {
 			State<S, E> previousState = currentState;
@@ -160,7 +147,7 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 			currentState.onEnter(this);
 			notifyStateChanged(message, previousState);
 		}
-		if (finalStates.equals(currentState)) {
+		if (finalStates.containsKey(currentState.getId())) {
 			stop();
 		}
 	}
@@ -197,10 +184,6 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	void setStopActions(Set<StateMachineStopAction<S, E>> stopActions) {
 		this.stopActions = stopActions;
-	}
-
-	void setExecutorService(ExecutorService executorService) {
-		this.executorService = executorService;
 	}
 
 }

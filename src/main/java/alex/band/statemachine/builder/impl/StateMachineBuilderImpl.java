@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
@@ -48,7 +47,6 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	private Map<S, Set<Transition<S, E>>> transitions = new HashMap<>();
 	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
 	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
-	private ExecutorService executorService;
 
 	@Override
 	public StartStopActionsConfigurer<S, E> defineStartStopActions() {
@@ -90,17 +88,10 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	}
 
 	@Override
-	public StateMachineBuilder<S, E> withExecutorService(ExecutorService executorService) {
-		this.executorService = executorService;
-		return this;
-	}
-
-	@Override
 	public StateMachine<S, E> build() {
 		validateStates();
 		validateTransitions();
 		validateTopology();
-		validateAsyncActions();
 		return createStateMachine();
 	}
 
@@ -156,19 +147,6 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		checkState(exitedStates.isEmpty(), STATES_WITHOUT_OUTBOUND_TRANSITION, exitedStates);
 	}
 
-	private void validateAsyncActions() {
-		if (executorService != null) {
-			return;
-		}
-		for (Set<Transition<S, E>> stateTransitions: transitions.values()) {
-			for (Transition<S, E> transition: stateTransitions) {
-				if (!transition.getAsyncActions().isEmpty()) {
-					checkState(false, ASYNC_ACTIONS_WITHOUT_EXECUTOR);
-				}
-			}
-		}
-	}
-
 	private Set<S> difference(Set<S> set1, Set<S> set2) {
 		Set<S> result = new LinkedHashSet<>(set1);
 		result.removeAll(set2);
@@ -193,7 +171,6 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		stateMachine.setStartActions(startActions);
 		stateMachine.setStopActions(stopActions);
 		stateMachine.setContext(new StateMachineContextImpl());
-		stateMachine.setExecutorService(executorService);
 
 		return stateMachine;
 	}

@@ -19,7 +19,6 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 	private E event;
 	private Guard<S, E> guard;
 	private Set<TransitionAction<S, E>> actions = new LinkedHashSet<>();
-	private Set<AsyncAction<S, E>> asyncActions = new LinkedHashSet<>();
 
 	@Override
 	public S getSource() {
@@ -44,11 +43,6 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 	@Override
 	public Set<TransitionAction<S, E>> getActions() {
 		return Collections.unmodifiableSet(actions);
-	}
-
-	@Override
-	public Set<AsyncAction<S, E>> getAsyncActions() {
-		return Collections.unmodifiableSet(asyncActions);
 	}
 
 	@Override
@@ -83,14 +77,6 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 
 	public void addActions(Set<TransitionAction<S, E>> actions) {
 		this.actions.addAll(actions);
-	}
-
-	public void addAsyncAction(AsyncAction<S, E> asyncAction) {
-		asyncActions.add(asyncAction);
-	}
-
-	public void addAsyncActions(Set<AsyncAction<S, E>> asyncActions) {
-		this.asyncActions.addAll(asyncActions);
 	}
 
 	public void setExternal(boolean external) {
