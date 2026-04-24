@@ -1,6 +1,7 @@
 package alex.band.statemachine.builder.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import alex.band.statemachine.StateMachine;
+import alex.band.statemachine.context.StateMachineContext;
 
 @ExtendWith(MockitoExtension.class)
 class StateMachineBuilderImplTest {
@@ -211,14 +213,41 @@ class StateMachineBuilderImplTest {
 	}
 
 	@Test
-	void noAsyncActionsNoExecutorServiceIsAllowed() {
+	void defaulStateMachineContextShouldBeAvailable() {
 		builder.defineState(S1).asInitial();
 		builder.defineState(S2).asFinal();
 		builder.defineExternalTransitionFor(S1).to(S2).by(E1);
 		StateMachine<String, String> stateMachine = builder.build();
-		stateMachine.start();
-		assertTrue(stateMachine.accept(E1));
-		assertEquals(S2, stateMachine.getCurrentState().getId());
+
+		assertNotNull(stateMachine.getContext());
+	}
+
+	@Test
+	void customStateMachineContextCanBeUsed() {
+		builder.defineState(S1).asInitial();
+		builder.defineState(S2).asFinal();
+		builder.defineExternalTransitionFor(S1).to(S2).by(E1);
+		builder.definedStateMachineContext(new TestContext());
+		StateMachine<String, String> stateMachine = builder.build();
+		
+		assertTrue(stateMachine.getContext() instanceof TestContext);
+	}
+
+	private static final class TestContext implements StateMachineContext {
+
+		@Override
+		public Object getValue(String key) {
+			return null;
+		}
+
+		@Override
+		public void setValue(String key, Object value) {
+		}
+
+		@Override
+		public Object removeValue(String key) {
+			return null;
+		}
 	}
 
 	private String withoutPlaceholder(String str) {

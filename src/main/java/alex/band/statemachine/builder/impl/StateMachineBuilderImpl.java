@@ -15,6 +15,7 @@ import alex.band.statemachine.builder.InternalTransitionConfigurer;
 import alex.band.statemachine.builder.StartStopActionsConfigurer;
 import alex.band.statemachine.builder.StateMachineBuilder;
 import alex.band.statemachine.builder.StatesConfigurer;
+import alex.band.statemachine.context.StateMachineContext;
 import alex.band.statemachine.context.StateMachineContextImpl;
 import alex.band.statemachine.state.State;
 import alex.band.statemachine.state.StateImpl;
@@ -47,6 +48,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	private Map<S, Set<Transition<S, E>>> transitions = new HashMap<>();
 	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
 	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
+	private StateMachineContext context = new StateMachineContextImpl();
 
 	@Override
 	public StartStopActionsConfigurer<S, E> defineStartStopActions() {
@@ -85,6 +87,11 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		addTransition(sourceState, transitionConfigurer.getTransition());
 
 		return transitionConfigurer;
+	}
+
+	@Override
+	public void definedStateMachineContext(StateMachineContext conext) {
+		this.context = conext;
 	}
 
 	@Override
@@ -170,7 +177,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		stateMachine.setStates(states);
 		stateMachine.setStartActions(startActions);
 		stateMachine.setStopActions(stopActions);
-		stateMachine.setContext(new StateMachineContextImpl());
+		stateMachine.setContext(context);
 
 		return stateMachine;
 	}

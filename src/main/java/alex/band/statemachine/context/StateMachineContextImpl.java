@@ -1,7 +1,7 @@
 package alex.band.statemachine.context;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class StateMachineContextImpl implements StateMachineContext {
 
-	private Map<String, Object> values = new HashMap<>();
+	private Map<String, Object> values = new ConcurrentHashMap<>();
 
 	@Override
 	public Object getValue(String key) {

@@ -5,6 +5,7 @@ import java.util.Set;
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
+import alex.band.statemachine.context.StateMachineContext;
 import alex.band.statemachine.transition.Transition;
 
 /**
@@ -47,6 +48,12 @@ public interface StateMachineBuilder<S, E> {
 	 * Configures internal {@link Transition} of the {@link StateMachine}.
 	 */
 	InternalTransitionConfigurer<S, E>  defineInternalTransitionFor(S sourceState);
+
+	/**
+	 * Optional. Defines a custom {@link StateMachineContext} for the
+	 * {@link StateMachine}. If no context defined default one will be used.
+	 */
+	void definedStateMachineContext(StateMachineContext conext);
 
 	/**
 	 * Builds the {@link StateMachine} with the given configuration.

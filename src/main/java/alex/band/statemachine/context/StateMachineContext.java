@@ -1,5 +1,7 @@
 package alex.band.statemachine.context;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
@@ -7,13 +9,23 @@ import alex.band.statemachine.state.StateAction;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
- * Data structure for storing contextual information required during the execution of the {@link StateMachine}.
+ * Stores contextual information as {@code (key, value)} pairs during
+ * {@link StateMachine} execution.
  *
- * <p>Data is stored as {@code (key, value)} pairs. The content is determined by the needs of a specific task.
+ * <p>
+ * The content depends on the specific task requirements.
  *
- * <p>{@code StateMachineContext} acts as a {@code shared} object
- * available to all components that define the behavior of the state machine.
- * Namely: {@link StateMachineStartAction}, {@link StateMachineStopAction}, {@link Guard}, {@link StateAction}, {@link TransitionAction}
+ * <p>
+ * {@code StateMachineContext} is a shared object available to all components
+ * that define the state machine's behavior: {@link StateMachineStartAction},
+ * {@link StateMachineStopAction}, {@link Guard}, {@link StateAction},
+ * {@link TransitionAction}.
+ *
+ * <p>
+ * The default implementation {@link StateMachineContextImpl} uses
+ * {@link ConcurrentHashMap} for basic concurrency support. If you provide a
+ * custom implementation of {@code StateMachineContext}, it is strongly
+ * recommended to support concurrency as well.
  *
  * @author Aliaksandr Bandarchyk
  */
