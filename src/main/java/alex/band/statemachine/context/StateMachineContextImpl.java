@@ -28,4 +28,9 @@ public class StateMachineContextImpl implements StateMachineContext {
 		return values.remove(key);
 	}
 
+	@Override
+	public void clear() {
+		values.clear();
+	}
+
 }

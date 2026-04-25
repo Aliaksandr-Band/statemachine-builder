@@ -287,6 +287,10 @@ class StateMachineBuilderImplTest {
 		public Object removeValue(String key) {
 			return null;
 		}
+
+		@Override
+		public void clear() {
+		}
 	}
 
 	private String withoutPlaceholder(String str) {

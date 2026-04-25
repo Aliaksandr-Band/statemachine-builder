@@ -73,6 +73,14 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	}
 
 	@Override
+	protected void doReset() {
+		checkState(mode != Mode.RUNNING, "Statemachine cannot be reset while running.");
+		context.clear();
+		currentState = null;
+		mode = Mode.READY;
+	}
+
+	@Override
 	protected boolean doAccept(StateMachineMessage<E> message) {
 		if (!isRunning()) {
 			return false;

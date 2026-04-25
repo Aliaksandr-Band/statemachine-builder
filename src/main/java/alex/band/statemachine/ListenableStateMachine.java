@@ -48,6 +48,16 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	protected abstract void doStop();
 
 	@Override
+	public synchronized void reset() {
+		doReset();
+	}
+
+	/**
+	 * Actions to reset the state machine.
+	 */
+	protected abstract void doReset();
+
+	@Override
 	public synchronized boolean accept(E event) {
 		return accept(new StateMachineMessageImpl<>(event));
 	}

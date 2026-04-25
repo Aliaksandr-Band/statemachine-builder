@@ -48,4 +48,30 @@ public interface StateMachineContext {
 	 */
 	Object removeValue(String key);
 
+	/**
+	 * Clears all key-value pairs from the context.
+	 *
+	 * <p>
+	 * This method is called when the state machine is reset to its initial state.
+	 * It is important for custom implementations of {@code StateMachineContext} to
+	 * properly clear all stored data to prevent state leakage between different
+	 * execution cycles of the state machine.
+	 *
+	 * <p>
+	 * Failure to properly clear the context may lead to unexpected behavior,
+	 * such as stale data being available to actions, guards, or listeners in
+	 * subsequent execution cycles.
+	 *
+	 * <p>
+	 * Implementations should ensure thread-safety when clearing the context,
+	 * especially in concurrent scenarios where the state machine may be accessed
+	 * from multiple threads.
+	 *
+	 * <p>
+	 * <b>Important:</b> After calling this method, all subsequent calls to
+	 * {@link #getValue(String)} should return {@code null} for any previously
+	 * stored keys.
+	 */
+	void clear();
+
 }

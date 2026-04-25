@@ -29,6 +29,27 @@ public interface StateMachine<S, E> extends StateMachineDetails<S, E> {
 	void stop();
 
 	/**
+	 * Resets the state machine to its initial READY state.
+	 *
+	 * <p>
+	 * This method restores the state machine to its initial configuration:
+	 * <ul><li>Clears the {@link alex.band.statemachine.context.StateMachineContext}</li>
+	 * <li>Resets the current state to the initial state</li>
+	 * <li>Sets the mode to {@code READY}</li></ul>
+	 *
+	 * <p>
+	 * The reset operation is synchronous and thread-safe. It can only be performed
+	 * when the state machine is not running (i.e., in {@code READY} or {@code STOPPED}
+	 * mode). Attempting to reset a running state machine will result in an exception.
+	 *
+	 * <p>
+	 * After reset, the state machine can be started again using {@link #start()}.
+	 *
+	 * @throws IllegalStateException if the state machine is currently running
+	 */
+	void reset();
+
+	/**
 	 * Sends an event to the state machine for processing.
 	 */
 	boolean accept(E event);
