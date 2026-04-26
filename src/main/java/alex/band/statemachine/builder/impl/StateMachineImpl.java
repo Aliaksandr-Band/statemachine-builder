@@ -5,6 +5,7 @@ import static alex.band.statemachine.util.Asserts.checkState;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import alex.band.statemachine.ListenableStateMachine;
 import alex.band.statemachine.StateMachine;
@@ -46,6 +47,8 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	private StateMachineContext context;
 	private volatile Mode mode;
+	private Consumer<Throwable> exceptionHandler = (t) -> {
+	};
 
 
 	@Override
@@ -207,6 +210,22 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	@Override
 	public boolean isStopped() {
 		return Mode.STOPPED == mode;
+	}
+
+	@Override
+	public boolean isFault() {
+		return Mode.FAULT == mode;
+	}
+
+	@Override
+	public void registerExceptionHandler(Consumer<Throwable> exceptionsHandler) {
+		this.exceptionHandler = exceptionsHandler;
+	}
+
+	@Override
+	public void unregisterExceptionHandler() {
+		this.exceptionHandler = (t) -> {
+		};
 	}
 
 }

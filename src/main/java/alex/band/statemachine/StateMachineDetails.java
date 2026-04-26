@@ -13,7 +13,7 @@ import alex.band.statemachine.state.State;
 public interface StateMachineDetails<S, E> {
 
 	enum Mode {
-		READY, RUNNING, STOPPED
+		READY, RUNNING, STOPPED, FAULT
 	};
 
 	boolean isReady();
@@ -21,6 +21,8 @@ public interface StateMachineDetails<S, E> {
 	boolean isRunning();
 
 	boolean isStopped();
+
+	boolean isFault();
 
 	State<S, E> getCurrentState();
 

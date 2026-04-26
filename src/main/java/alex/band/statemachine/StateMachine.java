@@ -1,5 +1,7 @@
 package alex.band.statemachine;
 
+import java.util.function.Consumer;
+
 import alex.band.statemachine.listener.StateMachineListener;
 import alex.band.statemachine.message.StateMachineMessage;
 
@@ -68,5 +70,15 @@ public interface StateMachine<S, E> extends StateMachineDetails<S, E> {
 	 * Removes a state machine lifecycle listener.
 	 */
 	void removeListener(StateMachineListener<S, E> listener);
+
+	/**
+	 * Registers exceptions handler which can be produced by user's business logic
+	 */
+	void registerExceptionHandler(Consumer<Throwable> handler);
+
+	/**
+	 * Unregister exceptions handler if it exists
+	 */
+	void unregisterExceptionHandler();
 
 }
