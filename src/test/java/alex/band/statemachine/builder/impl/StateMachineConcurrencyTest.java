@@ -66,10 +66,12 @@ class StateMachineConcurrencyTest {
 			futures.add(threadPool.submit(() -> {
 				try {
 					barrier.await(5, TimeUnit.SECONDS);
+					results.add(sm.accept(TRANSITION));
+				} catch (IllegalStateException ie) { // thrown when state machine is stopped
+					results.add(false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
-				results.add(sm.accept(TRANSITION));
 			}));
 		}
 
@@ -203,8 +205,11 @@ class StateMachineConcurrencyTest {
 	@Test
 	void acceptMethod_isActuallySynchronized() throws Exception {
 		builder.defineState(S1).asInitial();
-		builder.defineState(S2).asFinal();
+		builder.defineState(S2);
+		builder.defineState(S3).asFinal();
 		builder.defineExternalTransitionFor(S1).to(S2).by(TRANSITION);
+		builder.defineExternalTransitionFor(S2).to(S1).by(TRANSITION);
+		builder.defineExternalTransitionFor(S1).to(S3).by("Finish");
 
 		StateMachine<String, String> sm = builder.build();
 		sm.start();

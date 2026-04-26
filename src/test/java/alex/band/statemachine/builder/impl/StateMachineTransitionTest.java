@@ -3,6 +3,7 @@ package alex.band.statemachine.builder.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.never;
@@ -112,7 +113,7 @@ class StateMachineTransitionTest {
 		stateMachine.start();
 
 		String nullEvent = null;
-		assertFalse(stateMachine.accept(nullEvent));
+		assertThrows(NullPointerException.class, () -> stateMachine.accept(nullEvent));
 	}
 
 	@Test
@@ -121,7 +122,7 @@ class StateMachineTransitionTest {
 		stateMachine.start();
 
 		StateMachineMessage<String> nullMessage = null;
-		assertFalse(stateMachine.accept(nullMessage));
+		assertThrows(NullPointerException.class, () -> stateMachine.accept(nullMessage));
 	}
 
 	@Test

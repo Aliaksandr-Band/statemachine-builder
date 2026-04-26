@@ -50,4 +50,52 @@ public final class Asserts {
 			throw new IllegalStateException(String.format(messageTemplate, args));
 		}
 	}
+
+	/**
+	 * Validates that the given reference is not null.
+	 *
+	 * @param <T> the type of the reference
+	 * @param reference the reference to check
+	 * @return the non-null reference that was validated
+	 * @throws NullPointerException if reference is null
+	 */
+	public static <T> T checkNotNull(T reference) {
+		if (reference == null) {
+			throw new NullPointerException();
+		}
+		return reference;
+	}
+
+	/**
+	 * Validates that the given reference is not null, with a detail message.
+	 *
+	 * @param <T> the type of the reference
+	 * @param reference the reference to check
+	 * @param errorMessage the detail message
+	 * @return the non-null reference that was validated
+	 * @throws NullPointerException if reference is null
+	 */
+	public static <T> T checkNotNull(T reference, Object errorMessage) {
+		if (reference == null) {
+			throw new NullPointerException(String.valueOf(errorMessage));
+		}
+		return reference;
+	}
+
+	/**
+	 * Validates that the given reference is not null, with a formatted detail message.
+	 *
+	 * @param <T> the type of the reference
+	 * @param reference the reference to check
+	 * @param messageTemplate the message template using {@link String#format} syntax
+	 * @param args the arguments referenced by the format specifiers
+	 * @return the non-null reference that was validated
+	 * @throws NullPointerException if reference is null
+	 */
+	public static <T> T checkNotNull(T reference, String messageTemplate, Object... args) {
+		if (reference == null) {
+			throw new NullPointerException(String.format(messageTemplate, args));
+		}
+		return reference;
+	}
 }

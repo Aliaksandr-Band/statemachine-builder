@@ -7,6 +7,7 @@ import alex.band.statemachine.listener.StateMachineListener;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.message.StateMachineMessageImpl;
 import alex.band.statemachine.state.State;
+import alex.band.statemachine.util.Asserts;
 
 /**
  * Abstract implementation of {@link StateMachine} that provides the mechanism for
@@ -59,11 +60,15 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 
 	@Override
 	public synchronized boolean accept(E event) {
+		Asserts.checkNotNull(event, "Provided Event must not be null");
+
 		return accept(new StateMachineMessageImpl<>(event));
 	}
 
 	@Override
 	public synchronized boolean accept(StateMachineMessage<E> message) {
+		Asserts.checkNotNull(message, "Provided message must not be null");
+
 		return doAccept(message);
 	}
 

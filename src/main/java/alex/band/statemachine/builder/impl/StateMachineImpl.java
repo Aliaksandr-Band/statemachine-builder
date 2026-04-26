@@ -51,9 +51,16 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	};
 
 
+	/**
+	 * Package-private constructor to restrict instantiation. Instances may only be
+	 * created by the builder.
+	 */
+	StateMachineImpl() {
+	}
+
 	@Override
 	protected void doStart() {
-		checkState(mode == Mode.READY, "Statemachine is already running or stopped.");
+		checkState(mode == Mode.READY, "Statemachine is already running, stopped or fault.");
 
 		for (StateMachineStartAction<S, E> action: startActions) {
 			action.onStart(this);
@@ -77,7 +84,7 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	@Override
 	protected void doReset() {
-		checkState(mode != Mode.RUNNING, "Statemachine cannot be reset while running.");
+		checkState(mode == Mode.STOPPED, "Statemachine should be stopped before reset.");
 		context.clear();
 		currentState = null;
 		mode = Mode.READY;
@@ -85,17 +92,9 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	@Override
 	protected boolean doAccept(StateMachineMessage<E> message) {
-		if (!isRunning()) {
-			return false;
-		}
-
-		if (message == null) {
-			notifyEventNotAccepted(message);
-			return false;
-		}
+		checkState(mode == Mode.RUNNING, "Statemachine is not running.");
 
 		return processMessage(message);
-
 	}
 
 

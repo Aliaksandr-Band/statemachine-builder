@@ -2,6 +2,8 @@ package alex.band.statemachine.message;
 
 import java.util.Optional;
 
+import alex.band.statemachine.util.Asserts;
+
 
 /**
  * Implementation of {@link StateMachineMessage}.
@@ -15,10 +17,14 @@ public class StateMachineMessageImpl<E> implements StateMachineMessage<E> {
 
 
 	public StateMachineMessageImpl(E event) {
+		Asserts.checkNotNull(event, "Provided Event must not be null");
+
 		this.event = event;
 	}
 
 	public StateMachineMessageImpl(E event, Object payload) {
+		Asserts.checkNotNull(event, "Provided Event must not be null");
+
 		this.event = event;
 		this.payload = payload;
 	}

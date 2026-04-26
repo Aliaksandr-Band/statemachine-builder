@@ -114,14 +114,14 @@ class StateMachineLifecycleTest {
 	}
 
 	@Test
-	void startStop_acceptReturnsFalseWhenStateMachineIsStopped() {
+	void startStop_exceptionShouldBeThrownOnAttempToAcceptEventWhenStateMachineIsStopped() {
 		stateMachine = buildMachineForStartStopTests();
 
 		stateMachine.start();
 		stateMachine.stop();
 
 		assertTrue(stateMachine.isStopped());
-		assertFalse(stateMachine.accept(STOP_EVENT));
+		assertThrows(IllegalStateException.class, () -> stateMachine.accept(STOP_EVENT));
 	}
 
 	@Test
