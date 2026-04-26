@@ -22,18 +22,19 @@ class StateMachineResetTest {
 	private static final String TEST_VALUE = "testValue";
 
 	@Test
-	void reset_fromReadyState_shouldClearContextAndSetReady() {
+	void reset_fromReadyState_shouldThrowIllegalStateException() {
 		StateMachine<String, String> stateMachine = buildStateMachine();
 
-		// Add some data to context
-		stateMachine.getContext().setValue(TEST_KEY, TEST_VALUE);
-		assertEquals(TEST_VALUE, stateMachine.getContext().getValue(TEST_KEY));
+		assertTrue(stateMachine.isReady());
 
-		// Reset from READY state
-		stateMachine.reset();
+		// Attempt to reset from RUNNING state should throw exception
+		IllegalStateException exception = assertThrows(IllegalStateException.class, stateMachine::reset);
+		assertEquals("Statemachine should be stopped before reset.", exception.getMessage());
+
+		// State machine should still be ready after failed reset
+		assertTrue(stateMachine.isReady());
 
 		// Verify context is cleared
-		assertNull(stateMachine.getContext().getValue(TEST_KEY));
 		assertTrue(stateMachine.isReady());
 		assertFalse(stateMachine.isRunning());
 		assertFalse(stateMachine.isStopped());
@@ -72,7 +73,7 @@ class StateMachineResetTest {
 
 		// Attempt to reset from RUNNING state should throw exception
 		IllegalStateException exception = assertThrows(IllegalStateException.class, stateMachine::reset);
-		assertEquals("Statemachine cannot be reset while running.", exception.getMessage());
+		assertEquals("Statemachine should be stopped before reset.", exception.getMessage());
 
 		// State machine should still be running after failed reset
 		assertTrue(stateMachine.isRunning());

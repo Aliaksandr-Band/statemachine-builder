@@ -40,6 +40,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	static final String INITIAL_STATE_IS_NOT_DEFINED = "Initial State is not defined.";
 	static final String THERE_ARE_NO_STATES_DEFINED = "There are no States defined.";
 	static final String ASYNC_ACTIONS_WITHOUT_EXECUTOR = "AsyncActions are defined but ExecutorService is not set.";
+	static final String CONTEXT_IS_NOT_DEFINED = "StateMachineContext is not defined";
 
 	private State<S, E> initialState;
 	private Map<S, State<S, E>> finalStates = new HashMap<>();
@@ -98,6 +99,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		validateStates();
 		validateTransitions();
 		validateTopology();
+		validateContext();
 		return createStateMachine();
 	}
 
@@ -166,6 +168,10 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 				enteredStates.remove(transition.getTarget().get());
 			}
 		}
+	}
+
+	private void validateContext() {
+		checkState(context != null, CONTEXT_IS_NOT_DEFINED);
 	}
 
 	private StateMachine<S, E> createStateMachine() {
