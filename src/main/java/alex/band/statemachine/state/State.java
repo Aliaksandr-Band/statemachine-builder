@@ -1,6 +1,7 @@
 package alex.band.statemachine.state;
 
 import java.util.Optional;
+import java.util.Set;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineDetails;
@@ -25,14 +26,14 @@ public interface State<S, E> {
 	Optional<Transition<S, E>> getSuitableTransition(StateMachineMessage<E> message, StateMachineDetails<S, E> context);
 
 	/**
-	 * Executes entry actions when entering this state.
+	 * Returns the set of {@link StateAction}s associated with the state enter.
 	 */
-	void onEnter(StateMachineDetails<S, E> context);
+	Set<StateEnterAction<S, E>> getEnterActions(StateMachineDetails<S, E> context);
 
 	/**
-	 * Executes exit actions when leaving this state.
+	 * Returns the set of {@link StateAction}s associated with the state exit.
 	 */
-	void onExit(StateMachineDetails<S, E> context);
+	Set<StateExitAction<S, E>> getExitActions(StateMachineDetails<S, E> context);
 
 	/**
 	 * Returns the state identifier.

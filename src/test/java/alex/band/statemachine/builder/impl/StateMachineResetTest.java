@@ -27,7 +27,7 @@ class StateMachineResetTest {
 
 		assertTrue(stateMachine.isReady());
 
-		// Attempt to reset from RUNNING state should throw exception
+		// Attempt to reset from READY state should throw exception
 		IllegalStateException exception = assertThrows(IllegalStateException.class, stateMachine::reset);
 		assertEquals("Statemachine should be stopped before reset.", exception.getMessage());
 

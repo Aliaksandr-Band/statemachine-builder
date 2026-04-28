@@ -18,7 +18,8 @@ import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.builder.StateMachineBuilder;
-import alex.band.statemachine.state.StateAction;
+import alex.band.statemachine.state.StateEnterAction;
+import alex.band.statemachine.state.StateExitAction;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -31,9 +32,13 @@ class StateMachineLifecycleTest {
 	private StateMachineImpl<String, String> stateMachine;
 
 	@Mock
-	private StateAction<String, String> initialStateAction;
+	private StateEnterAction<String, String> initialStateEnterAction;
 	@Mock
-	private StateAction<String, String> finalStateAction;
+	private StateExitAction<String, String> initialStateExitAction;
+	@Mock
+	private StateEnterAction<String, String> finalStateEnterAction;
+	@Mock
+	private StateExitAction<String, String> finalStateExitAction;
 	@Mock
 	private StateMachineStartAction<String, String> startAction;
 	@Mock
@@ -61,7 +66,7 @@ class StateMachineLifecycleTest {
 		stateMachine = buildMachineForStartStopTests();
 		stateMachine.start();
 
-		verify(initialStateAction).onEnter(isA(StateMachineDetails.class));
+		verify(initialStateEnterAction).execute(isA(StateMachineDetails.class));
 	}
 
 	@Test
@@ -70,7 +75,7 @@ class StateMachineLifecycleTest {
 		stateMachine.start();
 		stateMachine.stop();
 
-		verify(initialStateAction).onExit(isA(StateMachineDetails.class));
+		verify(initialStateExitAction).execute(isA(StateMachineDetails.class));
 	}
 
 	@Test
@@ -101,7 +106,7 @@ class StateMachineLifecycleTest {
 		assertFalse(stateMachine.isRunning());
 		assertEquals(FINAL_STATE, stateMachine.getCurrentState().getId());
 
-		verify(finalStateAction).onExit(isA(StateMachineDetails.class));
+		verify(finalStateExitAction).execute(isA(StateMachineDetails.class));
 		verify(stopAction).onStop(isA(StateMachineDetails.class));
 	}
 
@@ -189,10 +194,12 @@ class StateMachineLifecycleTest {
 	private StateMachineImpl<String, String> buildMachineForStartStopTests() {
 		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
 
-		builder.defineStartStopActions().onStart(startAction).onStop(stopAction);
+		builder.defineStartStopActions().startAction(startAction).stopAction(stopAction);
 
-		builder.defineState(INITIAL_STATE).asInitial().withAction(initialStateAction);
-		builder.defineState(FINAL_STATE).asFinal().withAction(finalStateAction);
+		builder.defineState(INITIAL_STATE).asInitial().withEnterAction(initialStateEnterAction)
+				.withExitAction(initialStateExitAction);
+		builder.defineState(FINAL_STATE).asFinal().withEnterAction(finalStateEnterAction)
+				.withExitAction(finalStateExitAction);
 
 		builder.defineExternalTransitionFor(INITIAL_STATE).to(FINAL_STATE).by(STOP_EVENT);
 

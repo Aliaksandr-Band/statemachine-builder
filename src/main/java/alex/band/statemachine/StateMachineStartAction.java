@@ -5,7 +5,7 @@ package alex.band.statemachine;
  *
  * @author Aliaksandr Bandarchyk
  */
-public interface StateMachineStartAction<S, E> {
+public interface StateMachineStartAction<S, E> extends Rollbackable<S, E> {
 
 	/**
 	 * Executes the start action of the state machine.

@@ -1,6 +1,6 @@
 package alex.band.statemachine.builder.impl;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import alex.band.statemachine.builder.ExternalTransitionConfigurer;
 import alex.band.statemachine.transition.Guard;
@@ -48,7 +48,7 @@ public class ExternalTransitionConfigurerImpl<S, E> implements ExternalTransitio
 	}
 
 	@Override
-	public ExternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions) {
+	public ExternalTransitionConfigurer<S, E> withActions(LinkedHashSet<TransitionAction<S, E>> actions) {
 		transition.addActions(actions);
 		return this;
 	}

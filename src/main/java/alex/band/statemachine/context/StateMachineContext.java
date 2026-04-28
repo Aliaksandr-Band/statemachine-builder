@@ -5,7 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
-import alex.band.statemachine.state.StateAction;
+import alex.band.statemachine.state.StateEnterAction;
+import alex.band.statemachine.state.StateExitAction;
 import alex.band.statemachine.transition.TransitionAction;
 
 /**
@@ -18,8 +19,8 @@ import alex.band.statemachine.transition.TransitionAction;
  * <p>
  * {@code StateMachineContext} is a shared object available to all components
  * that define the state machine's behavior: {@link StateMachineStartAction},
- * {@link StateMachineStopAction}, {@link Guard}, {@link StateAction},
- * {@link TransitionAction}.
+ * {@link StateMachineStopAction}, {@link Guard}, {@link StateEnterAction},
+ * {@link StateExitAction}, {@link TransitionAction}.
  *
  * <p>
  * The default implementation {@link StateMachineContextImpl} uses

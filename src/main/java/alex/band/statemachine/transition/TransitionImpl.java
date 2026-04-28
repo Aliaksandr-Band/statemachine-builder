@@ -75,7 +75,7 @@ public class TransitionImpl<S, E> implements Transition<S, E> {
 		actions.add(action);
 	}
 
-	public void addActions(Set<TransitionAction<S, E>> actions) {
+	public void addActions(LinkedHashSet<TransitionAction<S, E>> actions) {
 		this.actions.addAll(actions);
 	}
 

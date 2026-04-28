@@ -1,5 +1,6 @@
 package alex.band.statemachine.state;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class StateImpl<S, E> implements State<S, E> {
 	private static final Logger LOGGER = Logger.getLogger(StateImpl.class.getName());
 
 	private S stateId;
-	private Set<StateAction<S, E>> actions = new LinkedHashSet<>();
+	private Set<StateEnterAction<S, E>> enterActions = new LinkedHashSet<>();
+	private Set<StateExitAction<S, E>> exitActions = new LinkedHashSet<>();
 	private Map<E, Set<Transition<S, E>>> transitions = new HashMap<>();
 
 	public StateImpl(S stateId) {
@@ -54,17 +56,13 @@ public class StateImpl<S, E> implements State<S, E> {
 	}
 
 	@Override
-	public void onEnter(StateMachineDetails<S, E> context) {
-		for (StateAction<S, E> action: actions) {
-			action.onEnter(context);
-		}
+	public Set<StateEnterAction<S, E>> getEnterActions(StateMachineDetails<S, E> context) {
+		return Collections.unmodifiableSet(enterActions);
 	}
 
 	@Override
-	public void onExit(StateMachineDetails<S, E> context) {
-		for (StateAction<S, E> action: actions) {
-			action.onExit(context);
-		}
+	public Set<StateExitAction<S, E>> getExitActions(StateMachineDetails<S, E> context) {
+		return Collections.unmodifiableSet(exitActions);
 	}
 
 	@Override
@@ -78,12 +76,20 @@ public class StateImpl<S, E> implements State<S, E> {
 		return "StateImpl [stateId=" + stateId + "]";
 	}
 
-	public void addActions(Set<StateAction<S, E>> actions) {
-		this.actions.addAll(actions);
+	public void addEnterActions(LinkedHashSet<StateEnterAction<S, E>> enterActions) {
+		this.enterActions.addAll(enterActions);
 	}
 
-	public void addAction(StateAction<S, E> action) {
-		this.actions.add(action);
+	public void addEnterAction(StateEnterAction<S, E> enterAction) {
+		this.enterActions.add(enterAction);
+	}
+
+	public void addExitActions(LinkedHashSet<StateExitAction<S, E>> exitActions) {
+		this.exitActions.addAll(exitActions);
+	}
+
+	public void addExitAction(StateExitAction<S, E> exitAction) {
+		this.exitActions.add(exitAction);
 	}
 
 	public void addTransition(Transition<S, E> transition) {

@@ -18,26 +18,37 @@ public class StartStopActionsConfigurerImpl<S, E> implements StartStopActionsCon
 	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
 	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
 
+
 	@Override
-	public StartStopActionsConfigurer<S, E> onStart(
-			@SuppressWarnings("unchecked") StateMachineStartAction<S, E>... actions) {
-		Collections.addAll(startActions, actions);
+	public StartStopActionsConfigurer<S, E> startAction(StateMachineStartAction<S, E> action) {
+		startActions.add(action);
 		return this;
 	}
 
 	@Override
-	public StartStopActionsConfigurer<S, E> onStop(
-			@SuppressWarnings("unchecked") StateMachineStopAction<S, E>... actions) {
-		Collections.addAll(stopActions, actions);
+	public StartStopActionsConfigurer<S, E> startActions(LinkedHashSet<StateMachineStartAction<S, E>> actions) {
+		startActions.addAll(actions);
+		return this;
+	}
+
+	@Override
+	public StartStopActionsConfigurer<S, E> stopAction(StateMachineStopAction<S, E> action) {
+		stopActions.add(action);
+		return this;
+	}
+
+	@Override
+	public StartStopActionsConfigurer<S, E> stopActions(LinkedHashSet<StateMachineStopAction<S, E>> actions) {
+		stopActions.addAll(actions);
 		return this;
 	}
 
 	Set<StateMachineStartAction<S, E>> getStartActions() {
-		return startActions;
+		return Collections.unmodifiableSet(startActions);
 	}
 
 	Set<StateMachineStopAction<S, E>> getStopActions() {
-		return stopActions;
+		return Collections.unmodifiableSet(stopActions);
 	}
 
 }

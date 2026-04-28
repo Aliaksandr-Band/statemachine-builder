@@ -6,14 +6,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import alex.band.statemachine.ListenableStateMachine;
+import alex.band.statemachine.RollbackableActionsExecutor;
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
 import alex.band.statemachine.context.StateMachineContext;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.state.State;
+import alex.band.statemachine.state.StateEnterAction;
+import alex.band.statemachine.state.StateExitAction;
 import alex.band.statemachine.transition.Transition;
 import alex.band.statemachine.transition.TransitionAction;
 
@@ -37,6 +43,8 @@ import alex.band.statemachine.transition.TransitionAction;
  */
 public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
+	private static final Logger LOGGER = Logger.getLogger(StateMachineImpl.class.getName());
+
 	private State<S, E> initialState;
 	private Map<S, State<S, E>> finalStates;
 	private volatile State<S, E> currentState;
@@ -44,6 +52,8 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	private Set<StateMachineStartAction<S, E>> startActions;
 	private Set<StateMachineStopAction<S, E>> stopActions;
+
+	private RollbackableActionsExecutor<S, E> rollbackExecutor;
 
 	private StateMachineContext context;
 	private volatile Mode mode;
@@ -62,23 +72,70 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	protected void doStart() {
 		checkState(mode == Mode.READY, "Statemachine is already running, stopped or fault.");
 
-		for (StateMachineStartAction<S, E> action: startActions) {
-			action.onStart(this);
+		executeWithRollbackSupport(() -> {
+
+			for (StateMachineStartAction<S, E> action : startActions) {
+				action.onStart(this);
+				rollbackExecutor.collect(action);
+			}
+
+			mode = Mode.RUNNING;
+			currentState = initialState;
+
+			executeStateEnterActions();
+		});
+	}
+
+	private void executeWithRollbackSupport(Runnable r) {
+
+		executeWithRollbackSupport(() -> {
+			r.run();
+			return true;
+		});
+	}
+
+	private boolean executeWithRollbackSupport(Supplier<Boolean> s) {
+		try {
+
+			return s.get();
+
+		} catch (Exception e) {
+
+			LOGGER.log(Level.SEVERE, "Exception during StateMachine actions executions", e);
+
+			mode = Mode.FAULT;
+
+			rollbackExecutor.rollback(this);
+
+			currentState = null;
+
+			exceptionHandler.accept(e);
+
+			return false;
+
+		} finally {
+			rollbackExecutor.clear();
 		}
 
-		mode = Mode.RUNNING;
-		currentState = initialState;
-		currentState.onEnter(this);
 	}
 
 	@Override
 	protected void doStop() {
 		checkState(mode == Mode.RUNNING, "Statemachine is not running.");
-		currentState.onExit(this);
+
+		executeWithRollbackSupport(() -> doStopInternal());
+	}
+
+	private void doStopInternal() {
+		checkState(mode == Mode.RUNNING, "Statemachine is not running.");
+
+		executeStateExitActions();
+
 		mode = Mode.STOPPED;
 
-		for (StateMachineStopAction<S, E> action: stopActions) {
+		for (StateMachineStopAction<S, E> action : stopActions) {
 			action.onStop(this);
+			rollbackExecutor.collect(action);
 		}
 	}
 
@@ -115,46 +172,66 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 	 */
 	private boolean processMessage(StateMachineMessage<E> message) {
 
-		Optional<Transition<S, E>> transition = currentState.getSuitableTransition(message, this);
-		if (transition.isPresent()) {
+		return executeWithRollbackSupport(() -> {
 
-			State<S, E> previousState = currentState;
-			try {
-				doCurrentStateExit(transition);
+			Optional<Transition<S, E>> transition = currentState.getSuitableTransition(message, this);
+			if (transition.isPresent()) {
+
+				boolean isExternalTrasition = transition.get().isExternal();
+
+				if (isExternalTrasition) {
+					executeStateExitActions();
+				}
+
 				executeTransitionActions(message, transition.get().getActions());
-				doNewStateEnter(transition, message);
-			} catch (Exception e) {
-				currentState = previousState;
-				throw e;
+
+				if (isExternalTrasition) {
+
+					State<S, E> previousState = currentState;
+					currentState = states.get(transition.get().getTarget().get());
+
+					executeStateEnterActions();
+
+					notifyStateChanged(message, previousState);
+
+					if (finalStates.containsKey(currentState.getId())) {
+						doStopInternal();
+						notifyStopListeners();
+					}
+				}
+
+				return true;
 			}
-			return true;
-		}
 
-		notifyEventNotAccepted(message);
-		return false;
-	}
+			notifyEventNotAccepted(message);
+			return false;
 
-	private void doCurrentStateExit(Optional<Transition<S, E>> transition) {
-		if (transition.get().isExternal()) {
-			currentState.onExit(this);
-		}
+		});
 	}
 
 	private void executeTransitionActions(StateMachineMessage<E> message, Set<TransitionAction<S, E>> actions) {
-		for (TransitionAction<S, E> action:actions) {
+
+		for (TransitionAction<S, E> action : actions) {
 			action.execute(message, this);
+			rollbackExecutor.collect(action);
 		}
 	}
 
-	private void doNewStateEnter(Optional<Transition<S, E>> transition, StateMachineMessage<E> message) {
-		if (transition.get().isExternal()) {
-			State<S, E> previousState = currentState;
-			currentState = states.get(transition.get().getTarget().get());
-			currentState.onEnter(this);
-			notifyStateChanged(message, previousState);
+	private void executeStateExitActions() {
+
+		Set<StateExitAction<S, E>> stateExitActions = currentState.getExitActions(this);
+		for (StateExitAction<S, E> exitAction : stateExitActions) {
+			exitAction.execute(this);
+			rollbackExecutor.collect(exitAction);
 		}
-		if (finalStates.containsKey(currentState.getId())) {
-			stop();
+	}
+
+	private void executeStateEnterActions() {
+
+		Set<StateEnterAction<S, E>> stateEnterActions = currentState.getEnterActions(this);
+		for (StateEnterAction<S, E> enterAction : stateEnterActions) {
+			enterAction.execute(this);
+			rollbackExecutor.collect(enterAction);
 		}
 	}
 
@@ -190,6 +267,10 @@ public class StateMachineImpl<S, E> extends ListenableStateMachine<S, E> {
 
 	void setStopActions(Set<StateMachineStopAction<S, E>> stopActions) {
 		this.stopActions = stopActions;
+	}
+
+	void setRollbackExecutor(RollbackableActionsExecutor<S, E> rollbackExecutor) {
+		this.rollbackExecutor = rollbackExecutor;
 	}
 
 	void setReady() {

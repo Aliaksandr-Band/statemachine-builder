@@ -260,8 +260,7 @@ class StateMachineBuilderImplTest {
 		builder.defineState(S2).asFinal();
 		builder.defineExternalTransitionFor(S1).to(S2).by(E1);
 		builder.defineStartStopActions()
-			.onStart(startAction)
-			.onStop(stopAction);
+				.startAction(startAction).stopAction(stopAction);
 
 		StateMachine<String, String> stateMachine = builder.build();
 		stateMachine.start();
@@ -313,6 +312,12 @@ class StateMachineBuilderImplTest {
 		boolean wasExecuted() {
 			return executed;
 		}
+
+		@Override
+		public void rollback(StateMachineDetails<String, String> context) {
+			// TODO Auto-generated method stub
+
+		}
 	}
 
 	private static final class TestStopAction implements StateMachineStopAction<String, String> {
@@ -325,6 +330,12 @@ class StateMachineBuilderImplTest {
 
 		boolean wasExecuted() {
 			return executed;
+		}
+
+		@Override
+		public void rollback(StateMachineDetails<String, String> context) {
+			// TODO Auto-generated method stub
+
 		}
 	}
 

@@ -2,6 +2,7 @@ package alex.band.statemachine.builder;
 
 import java.util.Set;
 
+import alex.band.statemachine.RollbackableActionsExecutor;
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
@@ -54,6 +55,12 @@ public interface StateMachineBuilder<S, E> {
 	 * {@link StateMachine}. If no context defined default one will be used.
 	 */
 	void definedStateMachineContext(StateMachineContext conext);
+
+	/**
+	 * Optional. Defines a custom {@link RollbackableActionsExecutor} for the
+	 * {@link StateMachine}. If not provided default one will be used.
+	 */
+	void defineRollbackableActionsExecutor(RollbackableActionsExecutor<S, E> rollbackExecutor);
 
 	/**
 	 * Builds the {@link StateMachine} with the given configuration.

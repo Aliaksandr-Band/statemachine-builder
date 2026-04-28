@@ -1,6 +1,6 @@
 package alex.band.statemachine.builder;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.transition.Guard;
@@ -40,6 +40,6 @@ public interface ExternalTransitionConfigurer<S, E> {
 	/**
 	 * Sets a set of {@link TransitionAction}s to be executed during the transition.
 	 */
-	ExternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions);
+	ExternalTransitionConfigurer<S, E> withActions(LinkedHashSet<TransitionAction<S, E>> actions);
 
 }

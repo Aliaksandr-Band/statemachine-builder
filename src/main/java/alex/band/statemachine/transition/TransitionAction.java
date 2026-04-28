@@ -1,5 +1,6 @@
 package alex.band.statemachine.transition;
 
+import alex.band.statemachine.Rollbackable;
 import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.message.StateMachineMessage;
 
@@ -8,7 +9,7 @@ import alex.band.statemachine.message.StateMachineMessage;
  *
  * @author Aliaksandr Bandarchyk
  */
-public interface TransitionAction<S, E> {
+public interface TransitionAction<S, E> extends Rollbackable<S, E> {
 
 	/**
 	 * Executes the action associated with the transition.

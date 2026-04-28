@@ -1,9 +1,10 @@
 package alex.band.statemachine.builder;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import alex.band.statemachine.StateMachine;
-import alex.band.statemachine.state.StateAction;
+import alex.band.statemachine.state.StateEnterAction;
+import alex.band.statemachine.state.StateExitAction;
 
 /**
  * Configurer for {@link State} of the {@link StateMachine}.
@@ -26,13 +27,23 @@ public interface StatesConfigurer<S, E> {
 	StatesConfigurer<S, E> asFinal();
 
 	/**
-	 * Sets a set of {@link StateAction} for the configured state.
+	 * Sets a set of {@link StateEnterAction} for the configured state.
 	 */
-	StatesConfigurer<S, E> withActions(Set<StateAction<S, E>> actions);
+	StatesConfigurer<S, E> withEnterActions(LinkedHashSet<StateEnterAction<S, E>> actions);
 
 	/**
-	 * Sets a {@link StateAction} for the configured state.
+	 * Sets a {@link StateEnterAction} for the configured state.
 	 */
-	StatesConfigurer<S, E> withAction(StateAction<S, E> action);
+	StatesConfigurer<S, E> withEnterAction(StateEnterAction<S, E> action);
+
+	/**
+	 * Sets a set of {@link StateExitAction} for the configured state.
+	 */
+	StatesConfigurer<S, E> withExitActions(LinkedHashSet<StateExitAction<S, E>> actions);
+
+	/**
+	 * Sets a {@link StateExitAction} for the configured state.
+	 */
+	StatesConfigurer<S, E> withExitAction(StateExitAction<S, E> action);
 
 }

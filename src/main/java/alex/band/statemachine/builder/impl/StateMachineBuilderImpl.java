@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import alex.band.statemachine.RollbackableActionsExecutor;
 import alex.band.statemachine.StateMachine;
 import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.StateMachineStopAction;
@@ -40,7 +41,8 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	static final String INITIAL_STATE_IS_NOT_DEFINED = "Initial State is not defined.";
 	static final String THERE_ARE_NO_STATES_DEFINED = "There are no States defined.";
 	static final String ASYNC_ACTIONS_WITHOUT_EXECUTOR = "AsyncActions are defined but ExecutorService is not set.";
-	static final String CONTEXT_IS_NOT_DEFINED = "StateMachineContext is not defined";
+	static final String CONTEXT_IS_NOT_DEFINED = "Provided StateMachineContext cannot be null";
+	static final String ROLLBACK_EXECUTOR_IS_NOT_DEFINED = "Provided RollbackableActionsExecutor cannot be null";
 
 	private State<S, E> initialState;
 	private Map<S, State<S, E>> finalStates = new HashMap<>();
@@ -49,6 +51,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 	private Set<StateMachineStartAction<S, E>> startActions = new LinkedHashSet<>();
 	private Set<StateMachineStopAction<S, E>> stopActions = new LinkedHashSet<>();
 	private StateMachineContext context = new StateMachineContextImpl();
+	private RollbackableActionsExecutor<S, E> rollbackExecutor = new RollbackableActionsExecutorImpl<>();
 
 	@Override
 	public StartStopActionsConfigurer<S, E> defineStartStopActions() {
@@ -91,7 +94,14 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 
 	@Override
 	public void definedStateMachineContext(StateMachineContext conext) {
+		checkState(context != null, CONTEXT_IS_NOT_DEFINED);
 		this.context = conext;
+	}
+
+	@Override
+	public void defineRollbackableActionsExecutor(RollbackableActionsExecutor<S, E> rollbackExecutor) {
+		checkState(rollbackExecutor != null, ROLLBACK_EXECUTOR_IS_NOT_DEFINED);
+		this.rollbackExecutor = rollbackExecutor;
 	}
 
 	@Override
@@ -99,7 +109,6 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		validateStates();
 		validateTransitions();
 		validateTopology();
-		validateContext();
 		return createStateMachine();
 	}
 
@@ -170,10 +179,6 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		}
 	}
 
-	private void validateContext() {
-		checkState(context != null, CONTEXT_IS_NOT_DEFINED);
-	}
-
 	private StateMachine<S, E> createStateMachine() {
 		connectTransitionsWithSourceStates();
 		StateMachineImpl<S, E> stateMachine = new StateMachineImpl<>();
@@ -183,6 +188,7 @@ public class StateMachineBuilderImpl<S, E> implements StateMachineBuilder<S, E> 
 		stateMachine.setStartActions(startActions);
 		stateMachine.setStopActions(stopActions);
 		stateMachine.setContext(context);
+		stateMachine.setRollbackExecutor(rollbackExecutor);
 		stateMachine.setReady();
 
 		return stateMachine;

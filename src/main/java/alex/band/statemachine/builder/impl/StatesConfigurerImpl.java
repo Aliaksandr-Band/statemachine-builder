@@ -1,9 +1,10 @@
 package alex.band.statemachine.builder.impl;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import alex.band.statemachine.builder.StatesConfigurer;
-import alex.band.statemachine.state.StateAction;
+import alex.band.statemachine.state.StateEnterAction;
+import alex.band.statemachine.state.StateExitAction;
 import alex.band.statemachine.state.StateImpl;
 
 /**
@@ -34,14 +35,26 @@ public class StatesConfigurerImpl<S, E> implements StatesConfigurer<S, E> {
 	}
 
 	@Override
-	public StatesConfigurer<S, E> withActions(Set<StateAction<S, E>> actions) {
-		state.addActions(actions);
+	public StatesConfigurer<S, E> withEnterActions(LinkedHashSet<StateEnterAction<S, E>> actions) {
+		state.addEnterActions(actions);
 		return this;
 	}
 
 	@Override
-	public StatesConfigurer<S, E> withAction(StateAction<S, E> action) {
-		state.addAction(action);
+	public StatesConfigurer<S, E> withEnterAction(StateEnterAction<S, E> action) {
+		state.addEnterAction(action);
+		return this;
+	}
+
+	@Override
+	public StatesConfigurer<S, E> withExitActions(LinkedHashSet<StateExitAction<S, E>> actions) {
+		state.addExitActions(actions);
+		return this;
+	}
+
+	@Override
+	public StatesConfigurer<S, E> withExitAction(StateExitAction<S, E> action) {
+		state.addExitAction(action);
 		return this;
 	}
 

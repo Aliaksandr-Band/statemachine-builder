@@ -25,7 +25,8 @@ import alex.band.statemachine.StateMachineDetails;
 import alex.band.statemachine.builder.StateMachineBuilder;
 import alex.band.statemachine.message.StateMachineMessage;
 import alex.band.statemachine.message.StateMachineMessageImpl;
-import alex.band.statemachine.state.StateAction;
+import alex.band.statemachine.state.StateEnterAction;
+import alex.band.statemachine.state.StateExitAction;
 import alex.band.statemachine.transition.Guard;
 import alex.band.statemachine.transition.GuardsComposer;
 import alex.band.statemachine.transition.TransitionAction;
@@ -53,9 +54,13 @@ class StateMachineTransitionTest {
 	@Mock
 	private TransitionAction<String, String> transitionAction;
 	@Mock
-	private StateAction<String, String> initialStateAction;
+	private StateEnterAction<String, String> initialStateEnterAction;
 	@Mock
-	private StateAction<String, String> stateAction;
+	private StateExitAction<String, String> initialStateExitAction;
+	@Mock
+	private StateEnterAction<String, String> stateEnterAction;
+	@Mock
+	private StateExitAction<String, String> stateExitAction;
 
 	@BeforeEach
 	@SuppressWarnings("unchecked")
@@ -134,10 +139,10 @@ class StateMachineTransitionTest {
 
 		verify(trueGuard, times(1)).evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
 
-		verify(initialStateAction, times(1)).onExit(isA(StateMachineDetails.class));
+		verify(initialStateExitAction, times(1)).execute(isA(StateMachineDetails.class));
 		verify(transitionAction, times(1)).execute(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
-		verify(stateAction, times(1)).onEnter(isA(StateMachineDetails.class));
-		verify(stateAction, never()).onExit(isA(StateMachineDetails.class));
+		verify(stateEnterAction, times(1)).execute(isA(StateMachineDetails.class));
+		verify(stateExitAction, never()).execute(isA(StateMachineDetails.class));
 	}
 
 	@Test
@@ -149,10 +154,10 @@ class StateMachineTransitionTest {
 
 		verify(falseGuard, times(1)).evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
 
-		verify(initialStateAction, never()).onExit(isA(StateMachineDetails.class));
+		verify(initialStateExitAction, never()).execute(isA(StateMachineDetails.class));
 		verify(transitionAction, never()).execute(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
-		verify(stateAction, never()).onEnter(isA(StateMachineDetails.class));
-		verify(stateAction, never()).onExit(isA(StateMachineDetails.class));
+		verify(stateEnterAction, never()).execute(isA(StateMachineDetails.class));
+		verify(stateExitAction, never()).execute(isA(StateMachineDetails.class));
 	}
 
 	@Test
@@ -164,7 +169,7 @@ class StateMachineTransitionTest {
 
 		verify(trueGuard, times(1)).evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
 
-		verify(initialStateAction, never()).onExit(isA(StateMachineDetails.class));
+		verify(initialStateExitAction, never()).execute(isA(StateMachineDetails.class));
 		verify(transitionAction, times(1)).execute(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
 	}
 
@@ -177,7 +182,7 @@ class StateMachineTransitionTest {
 
 		verify(falseGuard, times(1)).evaluate(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
 
-		verify(initialStateAction, never()).onExit(isA(StateMachineDetails.class));
+		verify(initialStateExitAction, never()).execute(isA(StateMachineDetails.class));
 		verify(transitionAction, never()).execute(isA(StateMachineMessage.class), isA(StateMachineDetails.class));
 	}
 
@@ -263,8 +268,9 @@ class StateMachineTransitionTest {
 	private StateMachineImpl<String, String> buildMachineForExternalTransitionTests() {
 		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
 
-		builder.defineState(S1).asInitial().withAction(initialStateAction);
-		builder.defineState(S2).withAction(stateAction);
+		builder.defineState(S1).asInitial().withEnterAction(initialStateEnterAction)
+				.withExitAction(initialStateExitAction);
+		builder.defineState(S2).withEnterAction(stateEnterAction).withExitAction(stateExitAction);
 		builder.defineState(S3).asFinal();
 		builder.defineExternalTransitionFor(S2).to(S3).by(E1);
 
@@ -278,7 +284,8 @@ class StateMachineTransitionTest {
 	private StateMachineImpl<String, String> buildMachineForInternalTransitionTests() {
 		StateMachineBuilder<String, String> builder = new StateMachineBuilderImpl<>();
 
-		builder.defineState(S1).asInitial().withAction(initialStateAction);
+		builder.defineState(S1).asInitial().withEnterAction(initialStateEnterAction)
+				.withExitAction(initialStateExitAction);
 		builder.defineState(S2).asFinal();
 		builder.defineExternalTransitionFor(S1).to(S2).by(E1);
 

@@ -38,6 +38,10 @@ public abstract class ListenableStateMachine<S, E> implements StateMachine<S, E>
 	public synchronized void stop() {
 		doStop();
 
+		notifyStopListeners();
+	}
+
+	protected void notifyStopListeners() {
 		for (StateMachineListener<S, E> listener: listeners) {
 			listener.onStop(this);
 		}

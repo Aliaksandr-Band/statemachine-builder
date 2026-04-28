@@ -1,6 +1,6 @@
 package alex.band.statemachine.builder.impl;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import alex.band.statemachine.builder.InternalTransitionConfigurer;
 import alex.band.statemachine.transition.Guard;
@@ -42,7 +42,7 @@ public class InternalTransitionConfigurerImpl<S, E> implements InternalTransitio
 	}
 
 	@Override
-	public InternalTransitionConfigurer<S, E> withActions(Set<TransitionAction<S, E>> actions) {
+	public InternalTransitionConfigurer<S, E> withActions(LinkedHashSet<TransitionAction<S, E>> actions) {
 		transition.addActions(actions);
 		return this;
 	}

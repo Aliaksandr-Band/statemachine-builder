@@ -1,13 +1,17 @@
 package alex.band.statemachine.builder.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import alex.band.statemachine.StateMachine;
+import alex.band.statemachine.StateMachineStartAction;
 import alex.band.statemachine.message.StateMachineMessage;
 
 public class StateMachineInternalStatesTest {
@@ -49,7 +53,7 @@ public class StateMachineInternalStatesTest {
 	}
 
 	@Test
-	void testStateMachineConstraintsInRanningState() {
+	void testStateMachineConstraintsInRunningState() {
 
 		StateMachine<String, String> sm = builder.build();
 		sm.start();
@@ -102,14 +106,29 @@ public class StateMachineInternalStatesTest {
 		sm.reset();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void testStateMachineConstraintsInFaultState() {
 
+		StateMachineStartAction<String, String> startAction = mock(StateMachineStartAction.class);
+		builder.defineStartStopActions().startAction(startAction);
+		
 		StateMachine<String, String> sm = builder.build();
+
+		RuntimeException exc = new RuntimeException();
+		doThrow(exc).when(startAction).onStart(sm);
+
 		sm.start();
 
-		// TODO write test when fault state logic will be implemented
+		// state after exception
+		assertTrue(sm.isFault());
+		assertFalse(sm.isStopped());
+		assertFalse(sm.isRunning());
+		assertFalse(sm.isReady());
 
+		assertNull(sm.getCurrentState());
+
+		assertThrows(IllegalStateException.class, () -> sm.accept(E1));
 	}
 
 }
